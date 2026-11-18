@@ -1,0 +1,171 @@
+/*
+ * "Kirishlar tarixi va faol sessiyalar" sahifasiga xos uslublar.
+ * Asosiy jadval/filtr/modal uslublari `users.css`dan qayta ishlatiladi
+ * (shu sabab bu yerda faqat shu sahifaga xos narsalar — badge, hisob va
+ * qurilma katakchalari, "barcha qurilmalardan chiqarish" tugmasi bor).
+ */
+
+/*
+ * `users.css`dagi umumiy qoida — `.users-table td:last-child { border-top:
+ * none }` — oxirgi ustunning (bu yerda "Chiqqan vaqti") sarlavha bilan
+ * birinchi qator orasidagi yuqori chizig'ini butunlay o'chirib qo'yadi.
+ * Boshqa sahifalarda sezilmagan, lekin shu jadvalda o'ng yuqori burchakda
+ * chiziq yo'q/boshqacha ko'rinib, "chiziqlar notogri" taassurotini bergan.
+ * Umumiy faylga tegmasdan, faqat shu sahifada asl (boshqa ustunlar bilan
+ * bir xil) chiziqni qaytaramiz.
+ */
+.users.container.login-history-page .users-table td:last-child {
+  border-top: 1px solid #d9d9d9;
+}
+
+/*
+ * Jadval `users.css`da `width: 100%` bilan qattiq belgilangan — boshqa
+ * sahifalarda (qisqaroq ustunlar) muammo bermaydi, lekin bu yerda bir
+ * vaqtning o'zida BIR NECHTA keng ustun (2 qatorli Hisob, Qurilma...) bor,
+ * ularning umumiy "tabiiy" eni 100%dan katta. `table-layout: auto` shu
+ * holatda ustunlarni ularning matni sig'adigan kenglikdan HAM KICHIKROQ
+ * qilib siqib qo'yardi — natijada uzun ismlar (`overflow: visible` tufayli)
+ * qo'shni ustunga chiqib ketardi. `width: auto` + `min-width: 100%` bilan
+ * jadval hech qachon o'z tarkibidan tor bo'lmaydi — sig'masa esa
+ * `.users-table-wrapper`ning o'zi gorizontal scroll qiladi (siqish o'rniga).
+ */
+.users.container.login-history-page .users-table {
+  width: auto;
+  min-width: 100%;
+}
+
+/*
+ * HAQIQIY sabab shu edi: `index.css`da BARCHA jadvallarning 2-ustuni
+ * (odatda checkbox'dan keyingi "ID" — qisqa raqam) uchun qattiq
+ * `width/min-width/max-width: 80px` bor. Bu sahifada checkbox ustuni
+ * YO'Q — shuning uchun 2-ustun "ID" emas, "Hisob" (ism+login), va o'sha
+ * 80px'ga zo'rlab siqilib, uzun ismlar tashqariga toshib chiqardi (yuqoridagi
+ * `.users-table{width:auto}` buni yolg'iz o'zi tuzata olmagan, chunki
+ * muammo ustunning O'ZIDA, jadval eniga emas). `.col-fullname`
+ * konvensiyasidagi 160px minimal enni qaytaramiz, yuqori chegarani olib
+ * tashlaymiz — ism qancha uzun bo'lsa, ustun shuncha kengayadi.
+ */
+.users.container.login-history-page .users-table th:nth-child(2),
+.users.container.login-history-page .users-table td:nth-child(2) {
+  width: auto;
+  min-width: 160px;
+  max-width: none;
+}
+
+/*
+ * Tablar (`.trash-tabs`, trash sahifasidan qayta ishlatilgan) bu sahifada
+ * filtr qatoridan OLDIN, alohida qatorda turadi — trash sahifasida esa ular
+ * filtr qatorining O'ZI ICHIDA (bitta flex qator, `.users-filters`ning
+ * `gap`i bilan) joylashgani uchun bu bo'shliq muammosi u yerda yo'q edi.
+ * Shu farq tufayli bu yerda tablar filtr qatoriga yopishib, orada hech
+ * qanday bo'shliq qolmagan edi.
+ */
+.users.container.login-history-page .trash-tabs {
+  margin-bottom: 16px;
+}
+
+/*
+ * Hisob/Qurilma katakchalari (2 qatorli matn) endi qo'shimcha tepa-past
+ * bo'shliqqa ega — matn qatorning chiziqlariga yopishib turmasin, orada
+ * doim sezilarli bo'shliq qolsin.
+ */
+.lh-account-cell,
+.lh-device-cell {
+  padding: 4px 0;
+}
+
+.lh-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: noto-sb;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.lh-badge--muted {
+  background: #e9ecef;
+  color: #64748b;
+}
+
+.lh-badge--current {
+  background: #d6e4f5;
+  color: #003366;
+}
+
+/*
+ * Ikkalasi ham DOIM ikki qatorli: 1-qator — asosiy matn (ism / qurilma
+ * turi), 2-qator — kichikroq qo'shimcha (@login · turi / platforma ·
+ * brauzer). Muhim ikkita qaror:
+ *
+ *  1) Bitta qatorga (nowrap) sig'dirish SINAB KO'RILGAN edi — ism va
+ *     "@login · turi" birga juda uzun bo'lib ketib (ba'zi F.I.Sh uzun),
+ *     ustun eniga sig'masdan KEYINGI ustun ("IP manzil") ustiga chiqib
+ *     qolar edi (matn ustma-ust chiqib, o'qib bo'lmas holatga kelardi).
+ *  2) Ikki qatorga erkin o'rash (avvalgi holat) ham muammoli edi — sub
+ *     qator ba'zi qatorlarda umuman bo'lmagani uchun (masalan platforma
+ *     ma'lum bo'lmasa) ba'zi jadval qatorlari 1 qatorli, ba'zilari 2
+ *     qatorli chiqib, balandligi notekis bo'lib, chiziqlar matnga nisbatan
+ *     turli joyda ko'rinardi.
+ *
+ * Yechim: sub-qator (`.lh-account-sub` / `.lh-device-sub`) JSX'da ENDI
+ * HAR DOIM render qilinadi (bo'sh bo'lsa ham ` ` bilan) — shu bilan
+ * HAR bir qator aniq 2 qatorli, balandligi doim bir xil, va har bir qator
+ * ancha tor bo'lgani uchun ustunga sig'maslik xavfi deyarli yo'q.
+ */
+.lh-account-cell,
+.lh-device-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.lh-account-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: noto-sb;
+  color: #1a2332;
+  white-space: nowrap;
+}
+
+.lh-account-sub,
+.lh-device-sub {
+  font-size: 12px;
+  color: #8d8d8d;
+  white-space: nowrap;
+}
+
+.lh-device-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1a2332;
+  white-space: nowrap;
+}
+
+.lh-confirm-label {
+  font-family: noto-sb;
+  color: #1a2332;
+  margin: -8px 0 0;
+  word-break: break-word;
+}
+
+.lh-terminate-all-btn {
+  font-size: 16px !important;
+  color: #b3760a;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.lh-terminate-all-btn:hover {
+  opacity: 0.7;
+}
+

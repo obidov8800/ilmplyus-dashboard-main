@@ -1,0 +1,1393 @@
+.users {
+  width: 100%;
+  max-width: 1262px;
+  /* min-height: 864px; */
+  border-radius: 15px;
+  padding: 25px 50px;
+  margin-top: 30px !important;
+  margin-bottom: 30px !important;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Yagona ustki toolbar — barcha jadval sahifalarida bir xil:
+   CHAPда filtr + qidiruv, O'NGда amal tugmalari («Qo'shish» / «O'chirish»).
+   Bir xil balandlik (40px), oraliq (12px), radius (10px). */
+.users-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Amal tugmalari DOM'да birinchi kelsa ham vizual jihatdan filtrlardan
+   KEYIN (o'ngда) chiqadi. `.add-new-user` (yoki u bo'lmasa `.delete-all`)
+   `margin-left: auto` bilan butun guruhni o'ng chetga suradi. */
+.users-filters > .add-new-user,
+.users-filters > .delete-all {
+  order: 1;
+}
+.users-filters > .add-new-user,
+.users-filters > .delete-all {
+  margin-left: auto;
+}
+.users-filters > .add-new-user ~ .delete-all {
+  margin-left: 0;
+}
+
+.users-filters select,
+.users-filters input {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid #dde1e7;
+  background: #fff;
+  outline: none;
+  min-width: 200px;
+  font-family: noto-r, sans-serif;
+  font-size: 14px;
+  color: #1a2332;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.users-filters select:hover,
+.users-filters input:hover {
+  border-color: #b9c0cc;
+}
+
+.users-filters select:focus,
+.users-filters input:focus {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.users-filters input::placeholder {
+  color: #9aa3b0;
+}
+
+.employees-dept-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 18px;
+  border-bottom: 2px solid #e2e8f0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.employees-dept-tab {
+  flex: 0 0 auto;
+  padding: 11px 18px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  background: transparent;
+  color: #64748b;
+  font: 14px noto-m, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.employees-dept-tab:hover {
+  color: #003366;
+  background: rgba(0, 51, 102, 0.04);
+}
+
+.employees-dept-tab.active {
+  color: #003366;
+  border-bottom-color: #fe9100;
+  font-family: noto-b, sans-serif;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/*
+ * Global `table { table-layout: fixed }` va `th, td { overflow: hidden;
+ * text-overflow: ellipsis; white-space: nowrap }` (index.css) barcha
+ * ustunlarni TENG kenglikka bo'ladi. Natijada uzun F.I.Sh ("Abdurahimov
+ * Abdurahmon...") qisqa "Filial" yoki "Yaratilgan sana" ustunlari bilan
+ * bir xil joy olib, "…" bilan kesilib qolardi — ustunlarda esa bo'sh joy
+ * ko'p edi.
+ *
+ * `auto` da har bir ustun o'z tarkibiga qarab o'lchanadi: uzun ismlar
+ * to'liq ko'rinadi, kalta ustunlar (ID, sana, filial) qisqaradi. Jadval
+ * ekranga sig'masa, `.users-table-wrapper` gorizontal scroll qiladi.
+ *
+ * Bu klass 25 ta ro'yxat sahifasida ishlatiladi, shuning uchun tuzatish
+ * hammasiga birdan tegadi. Yondashuv loyihadagi `branches.css`,
+ * `course-prices.css` va `finance.css` dagi bilan bir xil.
+ */
+.users-table {
+  table-layout: auto;
+}
+
+.users-table th,
+.users-table td {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+/* F.I.Sh ustuni juda tor bo'lib qolmasin (rasm + qisqa ism bo'lsa ham). */
+.users-table .col-fullname {
+  min-width: 160px;
+}
+
+/* A percentage grows with a horizontally scrolling table. Keep the users'
+   ID at its intrinsic text width, regardless of the other visible columns. */
+main.page .users-table > :is(thead, tbody) > tr > .users-id-cell {
+  width: 1px !important;
+  min-width: 0;
+  max-width: none;
+  padding-inline: 8px !important;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  font-variant-numeric: tabular-nums;
+}
+
+.users-table th:last-child {
+  border-bottom: 1px solid #9e9d9d5d;
+}
+
+.users-table td:last-child {
+  border-left: none;
+  border-top: none;
+}
+
+.users-table td:last-child svg,
+.users-table td:last-child span {
+  cursor: pointer;
+}
+
+.users-table-wrapper {
+  overflow-y: visible;
+  /* `table-layout: auto` da ustunlar tarkibiga qarab kengayadi — ustuni ko'p
+     jadval (masalan Xodimlar, O'quvchilar) ekranga sig'masa, sahifani emas,
+     shu joyni gorizontal scroll qildiradi. */
+  overflow-x: auto;
+  flex: 1;
+  /* box-shadow: 0 0 1px black; */
+}
+
+.users-table input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.actions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* `display: flex` on a `<td>` stops it acting like a table cell, so it no
+   longer stretches to the row's height — in a tall row (long F.I.Sh wrapped
+   onto several lines) the action icons stuck to the top instead of sitting
+   centered like every other column. Native table-cell `vertical-align`
+   centers it correctly instead; horizontal gap comes from button margin. */
+td.actions {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* One action (work-time) is wrapped in its own `<div>` for a popover —
+   a bare `<div>` is block-level and would stack under the buttons instead
+   of sitting next to them once the td itself is no longer flex. Forcing
+   every direct child inline keeps them in one row regardless of tag. */
+td.actions > * {
+  display: inline-block !important;
+  vertical-align: middle;
+  margin: 0 4px;
+}
+
+.add-user-panel {
+  border: 1px solid #003366;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+/* ---------- Umumiy input/select — modal va forma tizimining yagona
+   manbasi. `.form-grid`, `.form-group`, `.subcategory-form-group`
+   (expenses.css) — barchasi shu qiymatlarga moslashtirilgan, shuning uchun
+   qaysi sahifada bo'lmasin inputlar bir xil ko'rinadi. ---------- */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 16px;
+  margin: 15px 0;
+}
+
+.form-grid input,
+.form-grid select,
+.form-group input,
+.form-group select,
+.form-group textarea,
+.subcategory-form-group input,
+.subcategory-form-group select {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1.5px solid #dde1e7;
+  background: #fff;
+  padding: 0 14px;
+  font-family: noto-r, sans-serif;
+  font-size: 14px;
+  color: #1a2332;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-group textarea {
+  height: auto;
+  min-height: 84px;
+  padding: 10px 14px;
+  resize: vertical;
+}
+
+.form-grid input:hover,
+.form-grid select:hover,
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover,
+.subcategory-form-group input:hover,
+.subcategory-form-group select:hover {
+  border-color: #b9c0cc;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.subcategory-form-group input:focus,
+.subcategory-form-group select:focus {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.form-grid input::placeholder,
+.form-group input::placeholder,
+.subcategory-form-group input::placeholder {
+  color: #9aa3b0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(1.5px);
+}
+
+.modal {
+  background: #fff;
+  padding: 28px;
+  border-radius: 16px;
+  width: 500px;
+  box-shadow:
+    0 24px 64px rgba(15, 23, 42, 0.28),
+    0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.modal.small {
+  width: 320px !important;
+  max-width: 320px !important;
+  text-align: center;
+}
+
+.modal.add-user-modal {
+  max-width: 900px;
+  width: 100%;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-title {
+  text-align: center;
+  font-family: noto-b;
+  font-size: 19px;
+  color: #1a2332;
+  margin-bottom: 24px;
+  margin-top: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.modal-actions .primary {
+  background: #003366;
+  color: #fff;
+  border: 1.5px solid #003366;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-family: noto-sb, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.modal-actions .primary:hover {
+  background: #012a52;
+}
+
+.modal-actions .primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modal-actions .danger {
+  background: #e03131;
+  border-color: #e03131;
+  color: #fff;
+}
+
+.modal-actions .danger:hover {
+  background: #c92a2a;
+}
+
+.add-new-user {
+  min-width: 120px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: 1.5px solid #003366;
+  background-color: #003366;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 14px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-new-user:hover {
+  background-color: #fff;
+  color: #003366;
+  font-family: noto-b;
+}
+
+.delete-all {
+  min-width: 120px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: 1.5px solid #e70a0a;
+  background-color: #e70a0a;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 14px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-all:hover {
+  background-color: #fff;
+  color: #e70a0a;
+  font-family: noto-b;
+}
+
+.delete-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.user-view-btn {
+  font-size: 18px !important;
+  color: #f39c12;
+  font-family: noto-b;
+  border: none !important;
+  background: transparent;
+  cursor: pointer;
+}
+
+.user-edit-btn {
+  font-size: 18px !important;
+  color: #22a7f0;
+  font-family: noto-b;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.user-archive-btn {
+  font-size: 18px !important;
+  color: gray;
+  font-family: noto-b;
+}
+
+.archive-restore-btn {
+  font-size: 18px !important;
+  color: #003366;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.archive-restore-btn:hover {
+  opacity: 0.7;
+}
+
+.archive-restore-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.archive-restore-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 15px;
+  border: 2px solid #003366;
+  background-color: #003366;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.archive-restore-all-btn:hover {
+  background-color: #fff;
+  color: #003366;
+  font-family: noto-b;
+}
+
+.archive-restore-all-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.user-workTime-btn {
+  font-size: 18px !important;
+  color: #003366;
+  font-family: noto-b;
+}
+
+.user-workTime-btn--teacher,
+.user-workTime-btn--teacher:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.user-workTime-note {
+  display: inline-flex;
+}
+
+.user-delete-btn {
+  font-size: 18px !important;
+  font-family: noto-b;
+  color: #fa2a00;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.danger {
+  background: #e03131;
+  color: #fff;
+  border: 1.5px solid #e03131;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-family: noto-sb, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.danger:hover {
+  background: #c92a2a;
+}
+
+.cancel {
+  background: #fff;
+  color: #4b5563;
+  border: 1.5px solid #dde1e7;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-family: noto-sb, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.cancel:hover {
+  border-color: #003366;
+  color: #003366;
+}
+
+.main-title {
+  text-align: center;
+  font-family: noto-b;
+  font-size: 20px;
+  color: #1a2332;
+  margin-bottom: 20px;
+}
+
+.range-box {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: white;
+  border: 1px solid #003366;
+  padding: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 100;
+  border-radius: 8px;
+}
+
+@media (max-width: 1024px) {
+  .users-filters {
+    flex-wrap: wrap;
+  }
+
+  .users-table {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .users {
+    padding: 12px !important;
+    margin-top: 14px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .users-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .employees-dept-tabs {
+    flex-wrap: nowrap;
+  }
+
+  .employees-dept-tab {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .users-filters select,
+  .users-filters input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .users-filters > .add-new-user,
+  .users-filters > .delete-all {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+}
+
+/* Foydalanuvchi qo'shish / tahrirlash sahifasi (header'dan tashqari 100vh) */
+
+.usrf-page {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+}
+
+.usrf-card {
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.usrf-heading {
+  flex: 0 0 auto;
+  text-align: center;
+  font-family: noto-b;
+  font-size: 20px;
+  color: #003366;
+  margin: 0;
+}
+
+.usrf-body {
+  flex: 0 0 auto;
+  display: flex;
+}
+
+.usrf-body .add-user-form {
+  width: 100%;
+  margin: 0;
+  align-content: start;
+}
+
+.usrf-footer {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.usrf-footer .primary {
+  background: #003366;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.usrf-footer .primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .usrf-body .add-user-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.add-user-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+.form-left,
+.form-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-family: noto-sb, sans-serif;
+  color: #4b5563;
+}
+
+.refresh-password {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 4px 0;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: noto-m, sans-serif;
+  font-size: 14px;
+  color: #1a2332;
+  cursor: pointer;
+}
+
+.checkbox-group input[type='checkbox'] {
+  width: 17px;
+  height: 17px;
+  accent-color: #003366;
+  cursor: pointer;
+  margin: 0;
+}
+
+.selected-items-box {
+  min-height: 80px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-item {
+  background: #f0f0f0;
+  padding: 6px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.selected-item button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selected-item button:hover {
+  color: #ff0000;
+}
+
+.trash-tabs {
+  display: flex;
+  gap: 4px;
+  /* Ko'p tur bo'lsa qatorga sig'masa — o'ralsin, sahifани kengaytirib
+     gorizontal scroll chiqarmasin. */
+  flex-wrap: wrap;
+}
+
+.trash-tab {
+  padding: 7px 16px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: noto-m;
+  font-size: 13px;
+  color: #64748b;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.trash-tab:hover {
+  background: #f1f5f9;
+  color: #03213f;
+}
+
+.trash-tab.active {
+  background: #003366;
+  color: #fff;
+  font-family: noto-b;
+  border-color: #003366;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.toggle-buttons button.active {
+  background: #003366;
+  color: #fff;
+  border-color: #003366;
+}
+
+.file-upload-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-upload-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  color: #003366;
+  font-family: noto-m;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.file-upload-btn:active {
+  transform: scale(0.98);
+}
+
+.view-field {
+  display: block;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  font-size: 14px;
+  color: #003366;
+  background: #f9f9f9;
+  min-height: 40px;
+}
+
+.trash-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  background: rgba(255, 255, 255, 0.25);
+  color: inherit;
+  font-size: 11px;
+  font-family: noto-b;
+  border-radius: 20px;
+  padding: 1px 7px;
+  min-width: 18px;
+}
+
+.trash-tab.active .trash-tab-count {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.trash-tab-unviewed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  background: #e70a0a;
+  color: #fff;
+  font-size: 11px;
+  font-family: noto-b;
+  border-radius: 20px;
+  padding: 1px 7px;
+  min-width: 18px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Demo dars sahifasi (src/pages/demo-lesson)
+
+   Jadval yuqoridagi .users-table uslublaridan foydalanadi; quyidagi `dl-`
+   prefiksli bloklar esa faqat demo dars sahifasiga tegishli — sahifa tepasi,
+   modal, dropdownlar, paginatsiya va davomat ko'rinishi.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Sahifa tepasi (sarlavha, Qo'shish / O'chirish / Saralash, qidiruv) yuqoridagi
+   .users, .main-title, .users-filters uslublaridan foydalanadi. */
+
+/* ── Jadval kartasi ──────────────────────────────────── */
+.dl-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ── Paginatsiya ─────────────────────────────────────────
+   `.dl-pagination*` olib tashlandi — demo-lesson endi umumiy
+   `PaginationBar` komponentidan foydalanadi. */
+
+/* ── Modal ───────────────────────────────────────────── */
+.dl-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.dl-modal {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 560px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.dl-modal-header {
+  padding: 16px 24px;
+  background: #d9d9d9;
+  font-family: noto-b;
+  font-size: 15px;
+  font-weight: 700;
+  color: #003366;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.dl-modal-body {
+  padding: 24px;
+}
+
+.dl-modal-footer {
+  padding: 16px 24px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.dl-btn-cancel {
+  padding: 10px 30px;
+  border: 1.5px solid #bdbdbd;
+  border-radius: 15px;
+  background: #ffffff;
+  font-size: 14px;
+  font-family: noto-m;
+  color: #000000;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.dl-btn-cancel:hover {
+  border-color: #8d8d8d;
+}
+
+.dl-btn-save {
+  padding: 10px 30px;
+  border: none;
+  border-radius: 15px;
+  background: #003366;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: noto-sb;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dl-btn-save:hover {
+  background: #012a55;
+}
+
+.dl-btn-save:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Modal formasi ───────────────────────────────────── */
+.dl-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 20px;
+}
+
+.dl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dl-label {
+  font-size: 13px;
+  font-family: noto-sb;
+  font-weight: 600;
+  color: #000000;
+}
+
+.dl-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dl-input {
+  width: 100%;
+  padding: 9px 36px 9px 12px;
+  border: 1.5px solid #bdbdbd;
+  border-radius: 15px;
+  font-size: 14px;
+  font-family: noto-m;
+  color: #000000;
+  background: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.dl-input:focus {
+  border-color: #003366;
+}
+
+.dl-input--error,
+.dl-input--error:focus {
+  border-color: #e70a0a !important;
+}
+
+.dl-input::placeholder {
+  color: #8d8d8d;
+}
+
+.dl-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.dl-input-icon {
+  position: absolute;
+  right: 10px;
+  color: #8d8d8d;
+  font-size: 13px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dl-arrow-icon {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.dl-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dl-date-hint {
+  font-size: 11px;
+  font-family: noto-m;
+  color: #8d8d8d;
+  padding-left: 2px;
+}
+
+/* ── Qidiruvli dropdown ──────────────────────────────── */
+.dl-select-wrap {
+  position: relative;
+}
+
+.dl-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: #ffffff;
+  border: 1.5px solid #bdbdbd;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dl-dropdown-item {
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: noto-m;
+  color: #000000;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.dl-dropdown-item:hover {
+  background: #f0f5ff;
+}
+
+.dl-dropdown-item--active {
+  background: #e8effa;
+  color: #003366;
+  font-family: noto-sb;
+  font-weight: 600;
+}
+
+.dl-dropdown-item--between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dl-dropdown-empty {
+  padding: 12px;
+  font-size: 13px;
+  color: #8d8d8d;
+  text-align: center;
+}
+
+.dl-lid-count {
+  font-size: 12px;
+  color: #fff;
+  background: #003366;
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Xona tanlash (bo'sh / band) ─────────────────────── */
+.dl-room-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 36px 9px 12px;
+  border: 1.5px solid #bdbdbd;
+  border-radius: 15px;
+  font-size: 14px;
+  font-family: noto-m;
+  color: #000000;
+  background: #ffffff;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-height: 40px;
+}
+
+.dl-room-trigger:hover {
+  border-color: #003366;
+}
+
+.dl-room-trigger-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
+.dl-room-arrow {
+  position: absolute;
+  right: 10px;
+  color: #8d8d8d;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.dl-room-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dl-placeholder {
+  color: #8d8d8d;
+}
+
+.dl-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: noto-sb;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.dl-badge--occupied {
+  background: #ffd7d7;
+  color: #e70a0a;
+}
+
+.dl-badge--free {
+  background: #ccffc3;
+  color: #1bb200;
+}
+
+/* ── Davomat ko'rinishi ──────────────────────────────── */
+.dl-att-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dl-att-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dl-att-title {
+  font-family: noto-b;
+  font-size: 22px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.dl-att-save-btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 15px;
+  background: #003366;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: noto-sb;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.dl-att-save-btn:hover {
+  background: #00284f;
+}
+
+.dl-att-save-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dl-att-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dl-att-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dl-att-table th {
+  white-space: nowrap;
+}
+
+.dl-att-table tbody tr {
+  transition: background 0.13s;
+}
+
+.dl-att-empty {
+  text-align: center !important;
+  padding: 60px 20px !important;
+  color: #8d8d8d;
+  font-size: 14px;
+}
+
+.dl-att-status-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.dl-att-status--present {
+  color: #1bb200;
+  font-family: noto-sb;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.dl-att-status--absent {
+  color: #e70a0a;
+  font-family: noto-sb;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.dl-att-toggle {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dl-att-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.dl-att-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  background: #bdbdbd;
+  transition: background 0.25s;
+}
+
+.dl-att-toggle input:checked + .dl-att-track {
+  background: #1bb200;
+}
+
+.dl-att-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: left 0.25s;
+  pointer-events: none;
+}
+
+.dl-att-toggle input:checked ~ .dl-att-thumb {
+  left: 23px;
+}

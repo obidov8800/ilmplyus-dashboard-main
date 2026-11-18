@@ -1,0 +1,115 @@
+/* ═══════════════════════════════════════════════════════
+   Pagination — barcha jadval sahifalarida bir xil ko'rinish
+   (asli pages/lid/registration.css dagi .db-pagination* dan olingan)
+═══════════════════════════════════════════════════════ */
+
+.db-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.db-pagination__info {
+  font-size: 13px;
+  font-family: noto-m;
+  color: #9ca3af;
+}
+
+.db-pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.db-pagination__btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-family: noto-m;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease;
+}
+
+.db-pagination__btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.db-pagination__btn--active {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+  font-family: noto-sb;
+}
+
+.db-pagination__btn--active:hover {
+  background: #ea6a0a !important;
+}
+
+.db-pagination__btn--nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.db-pagination__ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.db-select__label {
+  font-size: 14px;
+  font-family: noto-m;
+  color: #6b7280;
+}
+
+.db-select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  background: #fff;
+  font-size: 14px;
+  font-family: noto-m;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+}
+
+.db-select:focus {
+  border-color: #f97316;
+}
+
+
+@media (max-width: 640px) {
+  .db-pagination {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .db-pagination__pages {
+    justify-content: center;
+  }
+}

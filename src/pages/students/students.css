@@ -1,0 +1,321 @@
+.student-view-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 760px;
+  max-width: 96vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 28px 30px;
+}
+
+.student-view-title {
+  font-size: 18px;
+  color: #003366;
+  font-family: noto-b;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.student-section-title {
+  font-size: 14px;
+  color: #003366;
+  font-family: noto-b;
+  margin: 18px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e6e6e6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.student-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+}
+
+.student-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.student-info-item label {
+  font-size: 11px;
+  color: #999;
+  font-family: noto-m;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.student-info-item span {
+  font-size: 14px;
+  color: #222;
+  font-family: noto-m;
+}
+
+.group-card {
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.group-card-header {
+  font-size: 14px;
+  color: #003366;
+  font-family: noto-b;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.group-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 9px 16px;
+}
+
+.group-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.group-info-item label {
+  font-size: 11px;
+  color: #999;
+  font-family: noto-m;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.group-info-item span {
+  font-size: 13px;
+  color: #333;
+  font-family: noto-m;
+}
+
+.student-view-close {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+.student-view-close button {
+  background: #003366;
+  color: #fff;
+  border: none;
+  padding: 8px 30px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: noto-m;
+}
+
+.student-edit-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 720px;
+  max-width: 96vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px 30px;
+}
+
+.student-edit-modal h1 {
+  font-size: 18px;
+  color: #003366;
+  font-family: noto-b;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.student-edit-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px 0;
+}
+
+.student-edit-grid .student-edit-group {
+  width: 47%;
+}
+
+.student-edit-grid .full-width {
+  width: 100%;
+}
+
+.student-edit-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.student-edit-group label {
+  font-size: 12px;
+  color: #999;
+  font-family: noto-m;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.student-edit-group input,
+.student-edit-group select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: noto-m;
+  color: #222;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.student-edit-group input:focus,
+.student-edit-group select:focus {
+  border-color: #003366;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 40px !important;
+  max-height: 42px;
+}
+
+.password-eye-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  font-size: 14px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.password-eye-btn:hover {
+  color: #003366;
+}
+
+.password-hint {
+  font-size: 11px;
+  color: #aaa;
+  font-family: noto-m;
+  margin-top: 2px;
+}
+
+.student-edit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.student-edit-actions .primary {
+  background: #003366;
+  color: #fff;
+  border: none;
+  padding: 10px 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: noto-m;
+}
+
+.student-edit-actions .primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.student-edit-actions .cancel {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 10px 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: noto-m;
+}
+
+.student-edit-actions .cancel:hover {
+  background: #e5e5e5;
+}
+
+.contract-yes {
+  color: #27ae60;
+  font-size: 16px;
+}
+
+.contract-no {
+  color: #e74c3c;
+  font-size: 16px;
+}
+
+.users-filters .students-clear-filters {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #c8d5e3;
+  border-radius: 10px;
+  background: #fff;
+  color: #003366;
+  font: 500 14px noto-m, sans-serif;
+  cursor: pointer;
+}
+
+.users-filters .students-clear-filters:hover {
+  background: #f1f6fc;
+  border-color: #003366;
+}
+
+.groups-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #003366;
+  background: #e8f0fb;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* Pagination — endi umumiy `PaginationBar` komponenti
+   (`components/Pagination/pagination.css`). `.students-pagination*` va
+   `.students-pagesize` olib tashlandi. */
+
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .student-view-modal,
+  .student-edit-modal {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    padding: 18px 14px !important;
+  }
+  .student-info-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .student-edit-grid .student-edit-group {
+    width: 100% !important;
+  }
+  .student-edit-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .student-edit-actions button {
+    width: 100%;
+  }
+}

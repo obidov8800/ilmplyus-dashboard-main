@@ -1,0 +1,250 @@
+/* «Yangi qurilma qo'shish / tahrirlash» oynasi.
+   Ilovada `.modal` / `.modal-title` / `.modal-actions` bir nechta sahifa CSS'ida (users, payments, levels, tasks)
+   turlicha yozilgan va build'da bitta faylga yig'iladi — shuning uchun bu yerda hammasi `.modal.fid-modal`
+   darajasida aniq belgilanadi, qaysi fayl keyin yuklanishidan qat'i nazar oyna bir xil ko'rinadi. */
+.modal.fid-modal {
+  box-sizing: border-box;
+  width: 560px !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 26px 32px 28px;
+  border: none;
+  border-radius: 16px;
+  box-shadow:
+    0 24px 64px rgba(15, 23, 42, 0.28),
+    0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.modal.fid-modal .modal-title {
+  margin: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e6ebf2;
+  font-family: noto-b, sans-serif;
+  font-size: 20px;
+  color: #003366;
+  text-align: center;
+}
+
+/* `minmax(0, 1fr)`: select/input ning o'z kengligi (uzun filial nomi) ustunni kengaytirib, oynadan chiqarib yubormasin. */
+.fid-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin: 22px 0 0;
+}
+
+.fid-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.fid-form-group label {
+  font-size: 13px;
+  font-family: noto-m, sans-serif;
+  color: #003366;
+}
+
+.fid-form-group input,
+.fid-form-group select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid #d0d9e6;
+  border-radius: 12px;
+  font-family: noto-m, sans-serif;
+  font-size: 14px;
+  color: #003366;
+  background-color: #fff;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.fid-form-group select {
+  padding-right: 38px;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23003366' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.fid-form-group input::placeholder {
+  color: #aab4c0;
+}
+
+.fid-form-group input:focus,
+.fid-form-group select:focus {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+/* Brauzer saqlangan login/parolni to'ldirib yuborsa ham maydon oq fonda qoladi (ko'k «avto-to'ldirish» fon emas). */
+.fid-form-group input:-webkit-autofill,
+.fid-form-group input:-webkit-autofill:hover,
+.fid-form-group input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #003366;
+  box-shadow: 0 0 0 100px #fff inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.fid-form-group select option {
+  color: #003366;
+  background: #fff;
+}
+
+.modal.fid-modal .modal-actions {
+  display: flex;
+  justify-content: stretch;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.modal.fid-modal .modal-actions button {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-family: noto-sb, sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.modal.fid-modal .modal-actions .primary {
+  border: 1.5px solid #003366;
+  background: #003366;
+  color: #fff;
+}
+
+.modal.fid-modal .modal-actions .primary:hover:not(:disabled) {
+  background: #012a52;
+}
+
+.modal.fid-modal .modal-actions .cancel {
+  border: 1.5px solid #d0d9e6;
+  background: #fff;
+  color: #4a5d73;
+}
+
+.modal.fid-modal .modal-actions .cancel:hover:not(:disabled) {
+  background: #f3f6fa;
+}
+
+.modal.fid-modal .modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Telefon: bir ustun (bu qoida asosiy `.fid-form-grid` dan KEYIN turishi shart — aks holda kuchga kirmaydi). */
+@media (max-width: 640px) {
+  .modal.fid-modal {
+    padding: 22px 18px 20px;
+  }
+
+  .fid-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .modal.fid-modal .modal-actions {
+    flex-direction: column-reverse;
+  }
+}
+
+/* Device detail follows the admin's navy, white and grey surfaces. */
+.fid-detail-page .fid-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  border: 0;
+  background: transparent;
+  color: #003366;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.fid-detail-page .fid-back-btn:hover { text-decoration: underline; }
+.fid-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+}
+.fid-detail-heading { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+main.page .fid-detail-heading .main-title { margin: 0; text-align: left; overflow-wrap: anywhere; }
+.fid-device-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #edf5fc;
+  color: #003366;
+  font-size: 24px;
+}
+.fid-detail-page .fid-sync-all { display: inline-flex; align-items: center; justify-content: center; gap: 10px; margin: 0; min-height: 42px; }
+.fid-detail-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  flex-basis: 100%;
+  gap: 20px;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+.fid-detail-meta > div { min-width: 0; }
+.fid-detail-meta dt { color: #6b7280; font-size: 13px; margin-bottom: 8px; }
+.fid-detail-meta dd { margin: 0; color: #003366; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.fid-ip-address { font-variant-numeric: tabular-nums; }
+.fid-employees-card { background: #fff; border: 1px solid #d9d9d9; border-radius: 12px; overflow: hidden; }
+.fid-detail-subtitle { display: flex; align-items: center; gap: 10px; margin: 0; padding: 20px 24px; font-family: noto-b, sans-serif; font-size: 16px; color: #003366; }
+.fid-employee-count { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 26px; padding: 0 8px; border-radius: 6px; background: #edf5fc; font-size: 12px; }
+.fid-employees-scroll { overflow-x: auto; }
+main.page .fid-emp-table { --sticky-cell-bg: #fff; table-layout: auto; min-width: 650px; }
+main.page .fid-emp-table > :is(thead, tbody) > tr > :is(th, td) { padding: 14px 18px !important; width: auto; min-width: 0; max-width: none; }
+main.page .fid-emp-table > :is(thead, tbody) > tr > .fid-col-fullname { width: 42%; min-width: 240px; text-align: left !important; white-space: normal; }
+main.page .fid-emp-table > :is(thead, tbody) > tr > :is(th, td):last-child { width: 1%; white-space: nowrap; }
+.fid-employee-name { display: flex; align-items: center; gap: 12px; }
+.fid-employee-name .mantine-Avatar-root { flex-shrink: 0; }
+.fid-employee-name > span { color: #003366; font-weight: 500; overflow-wrap: anywhere; }
+.fid-employee-phone { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fid-row-actions { gap: 8px; }
+.fid-detail-page .fid-row-actions button { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid #dbe5ef; border-radius: 8px; background: #f5faff; color: #003366; font-size: 16px; }
+.fid-detail-page .fid-row-actions .user-delete-btn { color: #dc2626; border-color: #fee2e2; background: #fff5f5; }
+.fid-detail-page .fid-row-actions button:hover:not(:disabled) { background: #e5eff9; }
+.fid-detail-page .fid-row-actions .user-delete-btn:hover:not(:disabled) { background: #fee2e2; }
+.fid-detail-page button:disabled { opacity: .5; cursor: not-allowed; }
+.fid-detail-page :is(button, [tabindex]):focus-visible { outline: 2px solid #2786c7; outline-offset: 3px; }
+.fid-detail-empty { padding: 48px 24px; text-align: center; color: #6b7280; font-size: 14px; }
+@media (max-width: 640px) {
+  .fid-detail-header { padding: 18px; gap: 18px; }
+  .fid-detail-heading { flex-basis: 100%; }
+  .fid-detail-page .fid-sync-all { width: 100%; order: 2; }
+  .fid-detail-meta { grid-template-columns: 1fr; gap: 16px; }
+  .fid-detail-meta > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .fid-detail-meta dt { margin: 0; }
+  .fid-detail-meta dd { text-align: right; }
+  .fid-detail-subtitle { padding: 18px; }
+}

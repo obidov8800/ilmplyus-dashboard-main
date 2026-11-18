@@ -1,0 +1,100 @@
+/* O'chirishni tasdiqlash modali — barcha sahifalarda bir xil ko'rinish.
+   `users.css` dagi `.modal.small` / `.modal-actions` uslublariga mos,
+   lekin mustaqil (hech qanday sahifa CSS'iga bog'liq emas). */
+
+.cdm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(1.5px);
+}
+
+.cdm-modal {
+  background: #fff;
+  padding: 28px;
+  border-radius: 16px;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+  box-shadow:
+    0 24px 64px rgba(15, 23, 42, 0.28),
+    0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.cdm-title {
+  margin: 0;
+  font-family: 'Noto Sans JP', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+  color: #1a2332;
+}
+
+.cdm-message {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.cdm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.cdm-btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-family: 'Noto Sans JP', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.cdm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cdm-btn--danger {
+  background: #e03131;
+  border: 1.5px solid #e03131;
+  color: #fff;
+}
+
+.cdm-btn--danger:not(:disabled):hover {
+  background: #c92a2a;
+  border-color: #c92a2a;
+}
+
+.cdm-btn--primary {
+  background: #003366;
+  border: 1.5px solid #003366;
+  color: #fff;
+}
+
+.cdm-btn--primary:not(:disabled):hover {
+  background: #002a54;
+  border-color: #002a54;
+}
+
+.cdm-btn--cancel {
+  background: #fff;
+  border: 1.5px solid #dde1e7;
+  color: #4b5563;
+}
+
+.cdm-btn--cancel:not(:disabled):hover {
+  border-color: #003366;
+  color: #003366;
+}

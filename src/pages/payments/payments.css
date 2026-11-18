@@ -1,0 +1,614 @@
+.payments {
+  width: 100%;
+  max-width: 1262px;
+  min-height: 864px;
+  border-radius: 15px;
+  padding: 25px 50px;
+  margin-top: 30px !important;
+  margin-bottom: 30px !important;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.main-title {
+  text-align: center;
+  font-family: noto-b;
+  font-size: 20px;
+  color: #003366;
+  margin-bottom: 20px;
+}
+
+/* Yagona ustki toolbar — `.users-filters` bilan bir xil qoida:
+   CHAPда filtr + qidiruv, O'NGда amal tugmalari. */
+.payments-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.payments-filters > .add-new-payment,
+.payments-filters > .delete-all {
+  order: 1;
+  margin-left: auto;
+}
+.payments-filters > .add-new-payment ~ .delete-all {
+  margin-left: 0;
+}
+
+.add-new-payment {
+  min-width: 120px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: 1.5px solid #003366;
+  background-color: #003366;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 14px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-new-payment:hover {
+  background-color: #fff;
+  color: #003366;
+  font-family: noto-b;
+}
+
+/* `.delete-all` — `users.css`dagi kanonik ta'rif bilan bir xil (bu fayl
+   `course-prices`da `users.css` bilan birga yuklanadi — mos bo'lishi shart). */
+.delete-all {
+  min-width: 120px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: 1.5px solid #e70a0a;
+  background-color: #e70a0a;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 14px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-all:hover {
+  background-color: #fff;
+  color: #e70a0a;
+  font-family: noto-b;
+}
+
+.delete-all:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.payment-type-select {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1.5px solid #dde1e7;
+  background-color: #fff;
+  color: #1a2332;
+  font-family: noto-m;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23003366' d='M1.41 0L6 4.59L10.59 0L12 1.41L6 7.41L0 1.41L1.41 0Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 40px;
+}
+
+.date-range-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-range-input {
+  height: 40px;
+  padding: 0 15px;
+  padding-right: 40px;
+  border-radius: 10px;
+  border: 1.5px solid #dde1e7;
+  background-color: #fff;
+  color: #1a2332;
+  font-family: noto-m;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  min-width: 180px;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 15px;
+  color: #003366;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.range-box {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: white;
+  border: 1px solid #003366;
+  padding: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 100;
+  border-radius: 8px;
+}
+
+.range-box input {
+  padding: 8px 12px;
+  border: 1.5px solid #003366;
+  border-radius: 15px;
+  font-family: noto-m;
+  font-size: 13px;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box input {
+  height: 40px;
+  padding: 0 15px;
+  padding-right: 40px;
+  border-radius: 15px;
+  border: 2px solid #003366;
+  background-color: #fff;
+  color: #003366;
+  font-family: noto-m;
+  font-size: 16px;
+  outline: none;
+  min-width: 200px;
+}
+
+.search-box i {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #003366;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.payments-table-wrapper {
+  overflow-x: auto;
+  flex: 1;
+  background: #fff;
+}
+
+/* Sichqoncha bilan "ushlab surish" (jadval keng bo'lganda) — `useDragScroll`. */
+.drag-scroll.is-scrollable {
+  cursor: grab;
+}
+
+.drag-scroll.is-drag-scrolling {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.drag-scroll.is-drag-scrolling a,
+.drag-scroll.is-drag-scrolling button {
+  pointer-events: none;
+}
+
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.actions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+/* `display: flex` on a `<td>` stops it acting like a table cell, so it no
+   longer stretches to the row's height — in a tall row the action icons
+   stuck to the top instead of sitting centered like every other column.
+   Native table-cell `vertical-align` centers it correctly instead. */
+td.actions {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+td.actions button {
+  margin: 0 5px;
+}
+
+.payment-view-btn {
+  color: #003366;
+  font-size: 18px;
+}
+
+.payment-view-btn:hover {
+  transform: scale(1.15);
+}
+
+.payment-edit-btn {
+  color: green;
+  font-size: 18px;
+}
+
+.payment-edit-btn:hover {
+  transform: scale(1.15);
+}
+
+.payment-archive-btn {
+  color: #666;
+  font-size: 18px;
+}
+
+.payment-archive-btn:hover {
+  transform: scale(1.15);
+}
+
+.payment-delete-btn {
+  color: #e70a0a;
+  font-size: 18px;
+}
+
+.payment-delete-btn:hover {
+  transform: scale(1.15);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  width: 500px;
+  border: 1px solid #003366;
+}
+
+.modal.small {
+  width: 320px;
+  text-align: center;
+}
+
+.modal-title {
+  text-align: center;
+  font-family: noto-b;
+  font-size: 20px;
+  color: #003366;
+  margin-bottom: 30px;
+  margin-top: 0;
+}
+
+.modal.add-payment-modal {
+  max-width: 900px;
+  width: 90%;
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+/* Edit mode adds the "yaratilgan / o‘zgartirilgan vaqt" pair into the right
+   column; at 900px those two datetime inputs get squeezed, so the edit
+   variant gets more room. */
+.modal.add-payment-modal.payment-modal-edit {
+  max-width: 1100px;
+}
+
+.payment-modal-edit .form-datetime-row .form-group input {
+  min-width: 0;
+}
+
+.add-payment-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+.form-left,
+.form-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-datetime-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-datetime-row .form-group {
+  flex: 1;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-family: noto-m;
+  color: #003366;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  font-size: 14px;
+  color: #003366;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: noto-m;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.form-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23003366' d='M1.41 0L6 4.59L10.59 0L12 1.41L6 7.41L0 1.41L1.41 0Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 35px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.modal-actions .primary {
+  background: #003366;
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-family: noto-m;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.modal-actions .primary:hover {
+  background: #00254d;
+}
+
+.modal-actions .primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.cancel {
+  border: 2px solid #666;
+  background: #fff;
+  color: #666;
+  padding: 10px 24px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-family: noto-m;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.cancel:hover {
+  background: #f0f0f0;
+}
+
+.danger {
+  border: none;
+  background: #e70a0a;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-family: noto-m;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.danger:hover {
+  background: #c90000;
+}
+
+@media (max-width: 768px) {
+  .add-payment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .payments-filters {
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+}
+
+/* ===== MAKTABGA TAYYORLOV: oylik to'lov paneli va summa chegarasi ===== */
+.payments-amount-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 8px;
+  margin-top: 3px;
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+}
+
+.payments-amount-fill {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  color: #003366;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.add-payment-form .form-group input.payments-amount-invalid {
+  border-color: #d93025;
+}
+
+.payments-amount-error {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #d93025;
+}
+
+.payments-month-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 14px;
+  padding: 12px 14px;
+  border: 1px solid #e3e9f1;
+  border-radius: 8px;
+  background: #f7f9fc;
+  font-size: 13px;
+}
+
+.payments-month-panel--muted {
+  color: #888;
+}
+
+.payments-month-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.payments-month-label {
+  color: #666;
+}
+
+.payments-month-value {
+  color: #333;
+  font-weight: 600;
+  text-align: right;
+}
+
+.payments-month-value.is-green {
+  color: #1e8e3e;
+}
+
+.payments-month-value.is-red {
+  color: #d93025;
+}
+
+.payments-month-row--total {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed #d7dfea;
+}
+
+.payments-month-note {
+  font-size: 12px;
+  color: #888;
+}
+
+.payments-month-note--ok {
+  color: #1e8e3e;
+}
+
+/* «Hisob raqami» maydoni: yonida «ixtiyoriy» belgisi, mos o'quvchi topilmasa qizil xabar */
+.form-group label.payment-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.payment-optional {
+  font-family: noto-m;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #6b7686;
+  background: #eef2f7;
+  border-radius: 999px;
+  padding: 0 8px;
+}
+
+.payment-account-missing {
+  font-size: 12px;
+  color: #d93025;
+}
+
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .payments {
+    padding: 12px !important;
+    margin-top: 14px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .payments-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .payments-filters select,
+  .payments-filters input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .payments-filters > .add-new-payment,
+  .payments-filters > .delete-all {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+}

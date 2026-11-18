@@ -1,0 +1,362 @@
+.settings-page {
+  padding: 63px 25px;
+}
+
+.settings-layout {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+  min-height: 600px;
+}
+
+.settings-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background-color: #fff;
+  border-radius: 15px;
+  border: 1px solid #003366;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+}
+
+.settings-sidebar h3 {
+  font-family: noto-b;
+  font-size: 18px;
+  color: #003366;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 51, 102, 0.1);
+}
+
+.settings-page-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-page-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-page-group + .settings-page-group {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 51, 102, 0.08);
+}
+
+.settings-group-label {
+  font-family: noto-sb;
+  font-size: 12px;
+  color: #003366;
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 15px 4px;
+}
+
+.settings-page-btn {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-family: noto-m;
+  font-size: 14px;
+  color: #003366;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-page-btn:hover {
+  background-color: rgba(0, 51, 102, 0.05);
+}
+
+.settings-page-btn.active {
+  background-color: #003366;
+  color: #fff;
+}
+
+.settings-content {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 15px;
+  border: 1px solid #003366;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 160px);
+  overflow: hidden;
+}
+
+.settings-content-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 51, 102, 0.1);
+}
+
+.settings-content-header h3 {
+  font-family: noto-b;
+  font-size: 22px;
+  color: #003366;
+  margin-bottom: 8px;
+}
+
+.settings-content-header p {
+  font-family: noto-m;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Reorder section */
+.settings-columns-reorder {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-columns-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(0, 51, 102, 0.04);
+  border-radius: 8px;
+  color: #666;
+  font-family: noto-m;
+  font-size: 13px;
+}
+
+.settings-columns-info i {
+  color: #003366;
+  opacity: 0.4;
+}
+
+.settings-columns-drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-drag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 51, 102, 0.12);
+  border-radius: 10px;
+  cursor: grab;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.settings-drag-item:hover {
+  border-color: rgba(0, 51, 102, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 51, 102, 0.06);
+}
+
+.settings-drag-item:active {
+  cursor: grabbing;
+}
+
+.settings-drag-item.dragging {
+  opacity: 0.5;
+  border-color: #003366;
+  background: rgba(0, 51, 102, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.12);
+}
+
+.drag-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drag-handle {
+  color: #003366;
+  opacity: 0.3;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.settings-drag-item:hover .drag-handle {
+  opacity: 0.6;
+}
+
+.drag-item-order {
+  font-family: noto-sb;
+  font-size: 12px;
+  color: #003366;
+  opacity: 0.35;
+  background: rgba(0, 51, 102, 0.06);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+/* Fixed (non-draggable) column - ID */
+.settings-drag-item.fixed {
+  cursor: default;
+  background: rgba(0, 51, 102, 0.03);
+  border-color: rgba(0, 51, 102, 0.08);
+  opacity: 0.75;
+}
+
+.settings-drag-item.fixed:hover {
+  box-shadow: none;
+  border-color: rgba(0, 51, 102, 0.08);
+}
+
+.drag-handle-locked {
+  color: #003366;
+  opacity: 0.2;
+  font-size: 12px;
+}
+
+.fixed-order {
+  opacity: 0.25;
+}
+
+/* Checkbox styles */
+.settings-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.settings-checkbox-label input[type='checkbox'] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid #003366;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.settings-checkbox-label input[type='checkbox']:checked + .checkbox-custom {
+  background-color: #003366;
+}
+
+.settings-checkbox-label input[type='checkbox']:checked + .checkbox-custom::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.checkbox-text {
+  font-family: noto-m;
+  font-size: 15px;
+  color: #333;
+}
+
+.settings-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 51, 102, 0.1);
+}
+
+.settings-save-btn {
+  background-color: #003366;
+  color: #fff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 15px;
+  font-family: noto-sb;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-save-btn:hover:not(:disabled) {
+  background-color: #00284f;
+  transform: translateY(-1px);
+}
+
+.settings-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* settings.update huquqi yo'q — faqat o'qish rejimi */
+.settings-drag-item--locked {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.settings-drag-item--locked .drag-handle,
+.settings-drag-item--locked .settings-checkbox-label {
+  cursor: default;
+}
+
+.settings-readonly-note {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Scrollbar styling */
+.settings-sidebar::-webkit-scrollbar,
+.settings-columns-reorder::-webkit-scrollbar {
+  width: 5px;
+}
+
+.settings-sidebar::-webkit-scrollbar-track,
+.settings-columns-reorder::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.settings-sidebar::-webkit-scrollbar-thumb,
+.settings-columns-reorder::-webkit-scrollbar-thumb {
+  background: rgba(0, 51, 102, 0.15);
+  border-radius: 10px;
+}
+
+.settings-sidebar::-webkit-scrollbar-thumb:hover,
+.settings-columns-reorder::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 51, 102, 0.3);
+}
+
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 900px) {
+  .settings-page {
+    padding: 20px 14px !important;
+  }
+  .settings-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .settings-sidebar {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-height: 280px;
+  }
+}

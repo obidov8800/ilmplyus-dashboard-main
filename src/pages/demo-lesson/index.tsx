@@ -1,0 +1,1271 @@
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
+import { useTranslation } from 'react-i18next';
+import RecordViewModal from '@/components/RecordViewModal/RecordViewModal';
+import { API } from '@/api/api';
+import BaseDateInput from '@/components/DateInput';
+import { dateToIso } from '@/utils/date';
+import { getLocalized } from '@/utils/getLocalized';
+import type { Group } from '@/types/groups.types';
+import { useOptions, type OptionItem } from '@/hooks/useOptions';
+import type { DemoLesson, CreateDemoLessonPayload } from '@/types/demoLesson.types';
+import type { Lid } from '@/types/lid.types';
+import {
+  useCreateDemoLesson,
+  useUpdateDemoLesson,
+  useDeleteDemoLesson,
+  useAttendanceDemoLesson,
+} from './useDemoLesson';
+import '../users/users.css';
+import { Protected } from '../../components/Protected';
+import { useTableColumns } from '../../hooks/useTableColumns';
+import PaginationBar from '../../components/Pagination/PaginationBar';
+import TableSkeleton from '../../components/TableSkeleton';
+import EmptyState from '../../components/EmptyState';
+import FilterButton from '@/components/FilterButton';
+import FilterBar, { type FilterBarField } from '@/components/FilterBar';
+import { countFilterBarValues } from '@/components/FilterBar/filterBar.utils';
+import { fetchAllPages } from '@/api/fetchAllPages';
+import { usePermission } from '@/hooks/usePermission';
+
+// ─── helpers ────────────────────────────────────────────────────────────────
+
+const UZ_MONTHS = [
+  'yanvar',
+  'fevral',
+  'mart',
+  'aprel',
+  'may',
+  'iyun',
+  'iyul',
+  'avgust',
+  'sentabr',
+  'oktabr',
+  'noyabr',
+  'dekabr',
+];
+
+function formatDateDisplay(dateStr: string): string {
+  if (!dateStr) return '-';
+  const datePart = dateStr.split('T')[0]; // handle ISO "2026-05-25T19:00:00.000000Z"
+  const parts = datePart.split('-');
+  if (parts.length === 3) {
+    const monthIdx = parseInt(parts[1], 10) - 1;
+    return `${parseInt(parts[2], 10)}-${UZ_MONTHS[monthIdx] ?? ''}`;
+  }
+  return dateStr;
+}
+
+function formatCreatedAt(dateStr: string): string {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${dd}.${mm}.${d.getFullYear()} ${hh}:${min}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+function apiDateToForm(apiDate: string): string {
+  const datePart = apiDate.split('T')[0]; // handle ISO format
+  const parts = datePart.split('-');
+  if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  return apiDate;
+}
+
+function formDateToApi(formDate: string): string {
+  const parts = formDate.split('.');
+  if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  return formDate;
+}
+
+function isDateInPast(value: string): boolean {
+  if (value.length < 10) return false;
+  const parts = value.split('.');
+  if (parts.length !== 3) return false;
+
+  const inputDay = parseInt(parts[0]);
+  const inputMonth = parseInt(parts[1]);
+  const inputYear = parseInt(parts[2]);
+  if (isNaN(inputDay) || isNaN(inputMonth) || isNaN(inputYear)) return false;
+
+  const today = new Date();
+  const tY = today.getFullYear();
+  const tM = today.getMonth() + 1;
+  const tD = today.getDate();
+
+  if (inputYear < tY) return true;
+  if (inputYear > tY) return false;
+  if (inputMonth < tM) return true;
+  if (inputMonth > tM) return false;
+  return inputDay < tD; // same year+month: true only if day is strictly less
+}
+
+function timeToMinutes(time: string): number {
+  if (!time || time.length < 4) return -1;
+  const [h, m] = time.split(':');
+  return (parseInt(h) || 0) * 60 + (parseInt(m) || 0);
+}
+
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+function getDayOfWeek(formDate: string): string {
+  const parts = formDate.split('.');
+  if (parts.length !== 3) return '';
+  const d = new Date(Date.UTC(+parts[2], +parts[1] - 1, +parts[0]));
+  return DAY_NAMES[d.getUTCDay()] ?? '';
+}
+
+function checkRoomOccupiedByGroups(
+  groups: Group[],
+  roomId: number,
+  formDate: string,
+  startTime: string,
+  endTime: string,
+): boolean {
+  const dayName = getDayOfWeek(formDate);
+  if (!dayName) return false;
+
+  const apiDate = formDateToApi(formDate); // YYYY-MM-DD
+  const newStart = timeToMinutes(startTime);
+  const newEnd = timeToMinutes(endTime);
+  if (newStart < 0 || newEnd < 0 || newStart >= newEnd) return false;
+
+  return groups.some((g) => {
+    if (!g.room || g.room.id !== roomId) return false;
+    if (!g.days?.includes(dayName)) return false;
+    if (g.start_date && apiDate < g.start_date) return false;
+    if (g.end_date && apiDate > g.end_date) return false;
+
+    const gs = timeToMinutes(g.start_time);
+    const ge = timeToMinutes(g.end_time);
+    return newStart < ge && newEnd > gs;
+  });
+}
+
+// ─── sub-components ──────────────────────────────────────────────────────────
+
+function TimeInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+
+    // ── Deletion ──────────────────────────────────────────
+    if (raw.length < value.length) {
+      if (raw.includes(':')) {
+        const [h, m = ''] = raw.split(':');
+        const hd = h.replace(/\D/g, '').slice(0, 2);
+        const md = m.replace(/\D/g, '').slice(0, 2);
+        onChange(md ? `${hd}:${md}` : `${hd}:`);
+      } else {
+        onChange(raw.replace(/\D/g, '').slice(0, 2));
+      }
+      return;
+    }
+
+    // ── Addition ──────────────────────────────────────────
+    const digits = raw.replace(/\D/g, '');
+    if (!digits) {
+      onChange('');
+      return;
+    }
+
+    const h1 = +digits[0];
+
+    // Single digit: if > 2 it can't be tens of hours → auto-colon
+    if (digits.length === 1) {
+      onChange(h1 > 2 ? `${h1}:` : digits[0]);
+      return;
+    }
+
+    const h2 = +digits[1];
+    const hour = h1 * 10 + h2;
+
+    // Two digits form invalid hour (> 23)
+    if (hour > 23) {
+      // Treat first digit as hour, second digit starts minutes (if valid)
+      onChange(h2 <= 5 ? `${h1}:${digits.slice(1, 3)}` : `${h1}:`);
+      return;
+    }
+
+    // Valid hour → auto-colon
+    const hs = `${digits[0]}${digits[1]}`;
+    if (digits.length === 2) {
+      onChange(`${hs}:`);
+      return;
+    }
+
+    // First minute digit must be 0–5
+    const m1 = +digits[2];
+    if (m1 > 5) {
+      onChange(`${hs}:`);
+      return;
+    }
+
+    // Full or partial minute
+    onChange(`${hs}:${digits.slice(2, 4)}`);
+  };
+
+  return (
+    <div className="dl-input-wrap">
+      <input
+        className="dl-input"
+        type="text"
+        value={value}
+        onChange={handleChange}
+        placeholder="00:00"
+        maxLength={5}
+      />
+      <span className="dl-input-icon">
+        <i className="fa-regular fa-clock" />
+      </span>
+    </div>
+  );
+}
+
+function DateInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { t } = useTranslation();
+  const isPast = isDateInPast(value);
+  const todayIso = dateToIso(new Date());
+
+  return (
+    <div className="dl-date-field">
+      <BaseDateInput
+        // Forma `dd.mm.yyyy` saqlaydi, komponent esa ISO bilan ishlaydi.
+        value={value.length === 10 ? formDateToApi(value) : ''}
+        onChange={(e) => onChange(e.target.value ? apiDateToForm(e.target.value) : '')}
+        min={todayIso}
+        className={`dl-input${isPast ? ' dl-input--error' : ''}`}
+        placeholder={t('demoLesson.modal.datePlaceholder')}
+        aria-invalid={isPast}
+      />
+      <span className="dl-date-hint">{t('demoLesson.modal.dateHint')}</span>
+    </div>
+  );
+}
+
+function GroupSelect({
+  value,
+  onChange,
+  groups,
+  lidsMap,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  groups: Group[];
+  lidsMap: Record<number, number>;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+
+  const selected = groups.find((g) => String(g.id) === value);
+  // faqat lid bog'langan guruhlarni ko'rsatish
+  const filtered = groups
+    .filter((g) => (lidsMap[g.id] || 0) > 0)
+    .filter((g) => g.name.toLowerCase().includes(search.toLowerCase()));
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch('');
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div className="dl-select-wrap" ref={ref}>
+      <div className="dl-input-wrap">
+        <input
+          className="dl-input"
+          type="text"
+          value={open ? search : (selected?.name ?? '')}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          placeholder={t('demoLesson.modal.groupPlaceholder')}
+        />
+        <span className="dl-input-icon dl-arrow-icon" onClick={() => setOpen((o) => !o)}>
+          <i className={`fa-solid fa-chevron-${open ? 'up' : 'down'}`} />
+        </span>
+      </div>
+      {open && (
+        <div className="dl-dropdown">
+          {filtered.length === 0 ? (
+            <div className="dl-dropdown-empty">{t('demoLesson.modal.dropdownEmpty')}</div>
+          ) : (
+            filtered.map((g) => (
+              <div
+                key={g.id}
+                className={`dl-dropdown-item dl-dropdown-item--between${String(g.id) === value ? ' dl-dropdown-item--active' : ''}`}
+                onClick={() => {
+                  onChange(String(g.id));
+                  setOpen(false);
+                  setSearch('');
+                }}
+              >
+                <span>{g.name}</span>
+                <span className="dl-lid-count">{lidsMap[g.id] ?? 0} lid</span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NativeSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+}) {
+  return (
+    <div className="dl-input-wrap">
+      <select
+        className="dl-input dl-select"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <span className="dl-input-icon dl-arrow-icon">
+        <i className="fa-solid fa-chevron-down" />
+      </span>
+    </div>
+  );
+}
+
+function RoomSelect({
+  value,
+  onChange,
+  rooms,
+  groups,
+  formDate,
+  startTime,
+  endTime,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  rooms: OptionItem[];
+  groups: Group[];
+  formDate: string;
+  startTime: string;
+  endTime: string;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const canCheck = formDate.length >= 10 && startTime.length >= 4 && endTime.length >= 4;
+  const selected = rooms.find((r) => String(r.id) === value);
+  const selectedOccupied =
+    selected && canCheck
+      ? checkRoomOccupiedByGroups(groups, selected.id, formDate, startTime, endTime)
+      : null;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const roomName = (r: OptionItem) => r.label || String(r.id);
+
+  return (
+    <div className="dl-select-wrap" ref={ref}>
+      <div className="dl-room-trigger" onClick={() => setOpen((o) => !o)}>
+        {selected ? (
+          <span className="dl-room-trigger-inner">
+            <span>{roomName(selected)}</span>
+            {selectedOccupied !== null && (
+              <span
+                className={`dl-badge ${selectedOccupied ? 'dl-badge--occupied' : 'dl-badge--free'}`}
+              >
+                {selectedOccupied ? t('demoLesson.badge.occupied') : t('demoLesson.badge.free')}
+              </span>
+            )}
+          </span>
+        ) : (
+          <span className="dl-placeholder">{t('demoLesson.modal.roomPlaceholder')}</span>
+        )}
+        <span className="dl-room-arrow">
+          <i className={`fa-solid fa-chevron-${open ? 'up' : 'down'}`} />
+        </span>
+      </div>
+      {open && (
+        <div className="dl-dropdown">
+          {rooms.map((room) => {
+            const occupied = canCheck
+              ? checkRoomOccupiedByGroups(groups, room.id, formDate, startTime, endTime)
+              : null;
+            return (
+              <div
+                key={room.id}
+                className={`dl-dropdown-item dl-room-item${String(room.id) === value ? ' dl-dropdown-item--active' : ''}`}
+                onClick={() => {
+                  onChange(String(room.id));
+                  setOpen(false);
+                }}
+              >
+                <span>{roomName(room)}</span>
+                {occupied !== null && (
+                  <span
+                    className={`dl-badge ${occupied ? 'dl-badge--occupied' : 'dl-badge--free'}`}
+                  >
+                    {occupied ? t('demoLesson.badge.occupied') : t('demoLesson.badge.free')}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Sahifalash — umumiy `PaginationBar` (barcha jadval sahifalarida bir xil). */
+
+// ─── attendance view ─────────────────────────────────────────────────────────
+
+function DemoLessonAttendanceView({
+  lessonId,
+  onClose,
+}: {
+  lessonId: number;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const [attendanceOverride, setAttendanceOverride] = useState<boolean | null>(null);
+
+  const { data: lessonDetail, isLoading } = useQuery({
+    queryKey: ['demo-lesson-detail', lessonId],
+    queryFn: async () => {
+      const res = await API.get(`/demo-lessons/${lessonId}`);
+      return res.data?.data ?? res.data;
+    },
+  });
+
+  const isPresent =
+    attendanceOverride !== null
+      ? attendanceOverride
+      : lessonDetail?.attendance_status === 'present';
+
+  const save = useAttendanceDemoLesson();
+
+  const handleSaveAttendance = () => {
+    save.mutate(
+      {
+        id: lessonId,
+        data: { attendance_status: isPresent ? 'present' : 'absent' },
+      },
+      {
+        onSuccess: () => {
+          notifications.show({
+            title: t('demoLesson.notification.success'),
+            message: t('demoLesson.notification.saved'),
+            color: 'green',
+          });
+          onClose();
+        },
+      },
+    );
+  };
+
+  const lid = lessonDetail?.lid;
+  const fullName = lid
+    ? [lid.last_name, lid.first_name, lid.father_name].filter(Boolean).join(' ')
+    : '';
+
+  return (
+    <div className="dl-att-page">
+      <div className="dl-att-header">
+        <h1 className="dl-att-title">{t('demoLesson.attendance.title')}</h1>
+        <button
+          className="dl-att-save-btn"
+          onClick={handleSaveAttendance}
+          disabled={save.isPending}
+        >
+          {t('demoLesson.attendance.save')}
+        </button>
+      </div>
+
+      <div className="dl-att-card">
+        <table className="dl-att-table">
+          <thead>
+            <tr>
+              <th>{t('demoLesson.table.id')}</th>
+              <th>{t('demoLesson.attendance.name')}</th>
+              <th />
+              <th>{t('demoLesson.attendance.managerPermission')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td colSpan={4} className="dl-att-empty">
+                  {t('demoLesson.attendance.loading')}
+                </td>
+              </tr>
+            ) : !lid ? (
+              <tr>
+                <td colSpan={4} className="dl-att-empty">
+                  {t('demoLesson.attendance.notFound')}
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td>{lid.id}</td>
+                <td>{fullName}</td>
+                <td>
+                  <span className={isPresent ? 'dl-att-status--present' : 'dl-att-status--absent'}>
+                    {isPresent
+                      ? t('demoLesson.attendance.present')
+                      : t('demoLesson.attendance.absent')}
+                  </span>
+                </td>
+                <td>
+                  <div className="dl-att-status-cell">
+                    <label className="dl-att-toggle">
+                      <input
+                        type="checkbox"
+                        checked={isPresent}
+                        onChange={(e) => setAttendanceOverride(e.target.checked)}
+                      />
+                      <span className="dl-att-track" />
+                      <span className="dl-att-thumb" />
+                    </label>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── form state ──────────────────────────────────────────────────────────────
+
+interface FormState {
+  group_id: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  room_id: string;
+  teacher_id: string;
+  lid_ids: number[];
+}
+
+const EMPTY_FORM: FormState = {
+  group_id: '',
+  date: '',
+  start_time: '',
+  end_time: '',
+  room_id: '',
+  teacher_id: '',
+  lid_ids: [],
+};
+
+// ─── filter ──────────────────────────────────────────────────────────────────
+
+type DlFilterKey = 'group' | 'room' | 'teacher' | 'date' | 'branch';
+
+const EMPTY_DL_FILTERS: Record<DlFilterKey, string> = {
+  group: '',
+  room: '',
+  teacher: '',
+  date: '',
+  branch: '',
+};
+
+const lessonTeacherName = (lesson: DemoLesson): string =>
+  lesson.teacher?.full_name ??
+  (lesson.teacher ? `${lesson.teacher.first_name} ${lesson.teacher.last_name}`.trim() : '');
+
+// ─── page ─────────────────────────────────────────────────────────────────────
+
+const DemoLessonPage = () => {
+  const { isVisible, visibleColumns } = useTableColumns('demoLesson');
+  const colCount = 2 + (isVisible('id') ? 1 : 0) + visibleColumns.length;
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<DemoLesson | null>(null);
+  const [viewItem, setViewItem] = useState<DemoLesson | null>(null);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [attendanceLessonId, setAttendanceLessonId] = useState<number | null>(null);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<Record<DlFilterKey, string>>(EMPTY_DL_FILTERS);
+  const [sortAsc, setSortAsc] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<number | 'all' | null>(null);
+
+  const { t, i18n } = useTranslation();
+  const columnHeader = (colId: string) => t(`columns.${colId}`, { defaultValue: colId });
+  const lang = i18n.language;
+
+  // ── queries ──
+  const { data: rawLessons, isLoading } = useQuery<
+    { current_page: number; data: DemoLesson[] } | DemoLesson[]
+  >({
+    queryKey: ['demo-lessons'],
+    // `/demo-lessons` 20 tadan sahifalaydi — eski darslar ham ko'rinishi uchun hammasini yig'amiz.
+    queryFn: () => fetchAllPages<DemoLesson>('/demo-lessons'),
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const lessons = useMemo<DemoLesson[]>(() => {
+    if (!rawLessons) return [];
+    if (Array.isArray(rawLessons)) return rawLessons;
+    return (rawLessons as { current_page: number; data: DemoLesson[] }).data ?? [];
+  }, [rawLessons]);
+
+  // Guruhlar (xona bandligi uchun): `groups.view` bo'lsa `/groups`, bo'lmasa tanlov ro'yxati (`/options/groups`,
+  // kunlari bilan) — sahifaga `demo_lessons.view` yetadi, boshqa bo'lim so'rovi ruxsatsiz yuborilmaydi.
+  const canViewGroups = usePermission('groups.view');
+  const { data: rawGroups } = useQuery<Group[] | { data: Group[] }>({
+    queryKey: ['groups'],
+    queryFn: () => API.get('/groups').then((r) => r.data),
+    enabled: canViewGroups,
+    staleTime: 1000 * 60 * 5,
+  });
+  const { data: groupOptions = [] } = useOptions('groups', undefined, { enabled: !canViewGroups });
+  const groups = useMemo<Group[]>(
+    () =>
+      canViewGroups
+        ? Array.isArray(rawGroups)
+          ? rawGroups
+          : ((rawGroups as { data: Group[] })?.data ?? [])
+        : groupOptions.map((o) =>
+          ({
+            id: o.id,
+            name: o.label,
+            branch_id: o.branch_id,
+            room_id: o.room_id,
+            room: o.room_id ? { id: o.room_id } : null,
+            teacher_id: o.teacher_id,
+            teacher: o.teacher_id ? { id: o.teacher_id } : null,
+            course_id: o.course_id,
+            start_time: o.start_time,
+            end_time: o.end_time,
+            days: (o as { days?: string[] }).days ?? [],
+            academic_year_id: o.academic_year_id ?? null,
+          }) as unknown as Group),
+    [canViewGroups, rawGroups, groupOptions],
+  );
+
+  // demo-lessons o'zida branch_id yo'q — guruh orqali (group_id) aniqlanadi,
+  // to'liq yuklangan `groups` ro'yxatidan.
+  const groupBranchId = useMemo<Record<number, number>>(() => {
+    const map: Record<number, number> = {};
+    groups.forEach((g) => {
+      if (g.branch_id != null) map[g.id] = g.branch_id;
+    });
+    return map;
+  }, [groups]);
+
+  const branchOptions = useMemo(() => {
+    const seen = new Map<number, string>();
+    groups.forEach((g) => {
+      if (g.branch) seen.set(g.branch.id, getLocalized(g.branch, 'name', lang) || g.branch.name_uz);
+    });
+    return Array.from(seen, ([id, label]) => ({ value: String(id), label }));
+  }, [groups, lang]);
+
+  const { data: rooms = [] } = useOptions('rooms');
+  const { data: employees = [] } = useOptions('teachers');
+
+  const canViewLids = usePermission('lids.view');
+  const { data: rawLids } = useQuery<Lid[]>({
+    queryKey: ['lids', 1, 1000],
+    queryFn: async () => {
+      const { data } = await API.get('/lids', { params: { page: 1, per_page: 1000 } });
+      return Array.isArray(data) ? data : (data?.data ?? []);
+    },
+    // Lid tanlovi — faqat rolda «Lidlar» sahifasi bo'lsa (lid ro'yxati `/options` da yo'q).
+    enabled: canViewLids,
+    staleTime: 1000 * 60 * 2,
+  });
+  const lids: Lid[] = useMemo(() => rawLids ?? [], [rawLids]);
+
+  // group_id → lid IDs array
+  const groupLidIds = useMemo<Record<number, number[]>>(() => {
+    const map: Record<number, number[]> = {};
+    lids.forEach((l) => {
+      if (l.group_id != null) {
+        (map[l.group_id] ??= []).push(l.id);
+      }
+    });
+    return map;
+  }, [lids]);
+
+  // group_id → lid count
+  const lidsMap = useMemo<Record<number, number>>(() => {
+    const map: Record<number, number> = {};
+    Object.entries(groupLidIds).forEach(([gid, ids]) => {
+      map[Number(gid)] = ids.length;
+    });
+    return map;
+  }, [groupLidIds]);
+
+  // ── mutations ──
+  const create = useCreateDemoLesson();
+  const update = useUpdateDemoLesson();
+  const remove = useDeleteDemoLesson();
+
+  // ── derived ──
+  // Saralash uchun qayta so'rov yuborilmaydi — kelgan ro'yxatning o'zi filtrlanadi.
+  const lessonRoomName = (lesson: DemoLesson) => getLocalized(lesson.room, 'name', lang) || '';
+
+  const uniqueValues = (pick: (l: DemoLesson) => string) =>
+    [...new Set(lessons.map(pick).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+  const filterFields: FilterBarField<DlFilterKey>[] = [
+    {
+      key: 'group',
+      label: t('demoLesson.table.groupName'),
+      options: uniqueValues((l) => l.group?.name ?? '').map((v) => ({ value: v, label: v })),
+    },
+    {
+      key: 'room',
+      label: t('demoLesson.table.room'),
+      options: uniqueValues(lessonRoomName).map((v) => ({ value: v, label: v })),
+    },
+    {
+      key: 'teacher',
+      label: t('demoLesson.table.teacher'),
+      options: uniqueValues(lessonTeacherName).map((v) => ({ value: v, label: v })),
+    },
+    {
+      key: 'date',
+      label: t('demoLesson.table.lessonDay'),
+      type: 'date',
+    },
+    {
+      key: 'branch',
+      label: t('demoLesson.table.branch', 'Filial'),
+      options: branchOptions,
+    },
+  ];
+
+  const activeFilterCount = countFilterBarValues(filters);
+
+  const filtered = useMemo(() => {
+    const s = search.toLowerCase();
+    return lessons
+      .filter((l) => {
+        if (s && !l.group?.name?.toLowerCase().includes(s) && !l.date?.toLowerCase().includes(s)) {
+          return false;
+        }
+        if (filters.group && (l.group?.name ?? '') !== filters.group) return false;
+        if (filters.room && getLocalized(l.room, 'name', lang) !== filters.room) return false;
+        if (filters.teacher && lessonTeacherName(l) !== filters.teacher) return false;
+        if (filters.date && (l.date ?? '').slice(0, 10) !== filters.date) return false;
+        if (filters.branch && String(groupBranchId[l.group_id] ?? '') !== filters.branch) {
+          return false;
+        }
+        return true;
+      })
+      .sort((a, b) => (sortAsc ? a.id - b.id : b.id - a.id));
+  }, [lessons, search, filters, lang, sortAsc, groupBranchId]);
+
+  const lastPage = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, lastPage);
+  const paginated = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+
+  useEffect(() => {
+    setSelected([]);
+  }, [page, search, filters]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters]);
+
+  const employeeOptions = employees.map((e) => ({
+    value: String(e.id),
+    label: e.label,
+  }));
+
+  const isSaving = create.isPending || update.isPending;
+
+  // ── handlers ──
+  const toggleAll = (checked: boolean) => {
+    setSelected(checked ? paginated.map((l) => l.id) : []);
+  };
+
+  const toggleOne = (id: number) => {
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setModalOpen(true);
+  };
+
+  const openEdit = (lesson: DemoLesson) => {
+    setEditing(lesson);
+    setForm({
+      group_id: String(lesson.group_id ?? ''),
+      date: lesson.date ? apiDateToForm(lesson.date) : '',
+      start_time: lesson.start_time ? lesson.start_time.slice(0, 5) : '',
+      end_time: lesson.end_time ? lesson.end_time.slice(0, 5) : '',
+      room_id: String(lesson.room_id ?? ''),
+      teacher_id: String(lesson.teacher_id ?? ''),
+      // Demo darsning O'Z lidlari (backend `lids`); javobda bo'lmasa — guruh lidlari
+      lid_ids: lesson.lids
+        ? lesson.lids.map((l) => l.id)
+        : lesson.group_id
+          ? (groupLidIds[lesson.group_id] ?? [])
+          : [],
+    });
+    setModalOpen(true);
+  };
+
+  const askDelete = (target: number | 'all') => {
+    setDeleteTarget(target);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    const notifyDeleted = () =>
+      notifications.show({
+        title: t('demoLesson.notification.success'),
+        message: t('demoLesson.notification.deleted'),
+        color: 'green',
+      });
+
+    if (deleteTarget === 'all') {
+      selected.forEach((id) => remove.mutate(id, { onSuccess: notifyDeleted }));
+      setSelected([]);
+    } else if (typeof deleteTarget === 'number') {
+      remove.mutate(deleteTarget, { onSuccess: notifyDeleted });
+      setSelected((p) => p.filter((x) => x !== deleteTarget));
+    }
+
+    setShowDeleteModal(false);
+    setDeleteTarget(null);
+  };
+
+  const handleSave = () => {
+    if (form.date.length !== 10) {
+      notifications.show({
+        title: t('demoLesson.modal.date'),
+        message: t('demoLesson.notification.dateInvalid'),
+        color: 'red',
+      });
+      return;
+    }
+
+    // H:i format: leading zero qo'shish (9:30 → 09:30)
+    const padTime = (t: string) => t.replace(/^(\d):/, '0$1:');
+
+    const payload: CreateDemoLessonPayload = {
+      group_id: parseInt(form.group_id),
+      date: formDateToApi(form.date),
+      start_time: padTime(form.start_time),
+      end_time: padTime(form.end_time),
+      room_id: parseInt(form.room_id),
+      teacher_id: parseInt(form.teacher_id),
+      lid_ids: form.lid_ids,
+    };
+
+    if (editing) {
+      // Backend (10-24): `PUT lid_ids: []` barcha lidlarni olib tashlaydi (avval 422 edi). Forma demo darsning o'z
+      // lidlaridan boshlanadi, shu sabab bo'sh massiv — foydalanuvchi ataylab hammasini olib tashlagani. Lidlar ro'yxati
+      // javobda kelmagan bo'lsa (eski javob) bo'sh massiv yuborilmaydi — tasodifan lidlarni o'chirib yubormaslik uchun.
+      const data = payload.lid_ids?.length || editing.lids ? payload : { ...payload, lid_ids: undefined };
+      update.mutate(
+        { id: editing.id, data },
+        {
+          onSuccess: () => {
+            notifications.show({
+              title: t('demoLesson.notification.success'),
+              message: t('demoLesson.notification.updated'),
+              color: 'green',
+            });
+            setModalOpen(false);
+          },
+        },
+      );
+    } else {
+      create.mutate(payload, {
+        onSuccess: () => {
+          notifications.show({
+            title: t('demoLesson.notification.success'),
+            message: t('demoLesson.notification.created'),
+            color: 'green',
+          });
+          setModalOpen(false);
+        },
+      });
+    }
+  };
+
+  // ── render ──
+  if (attendanceLessonId !== null) {
+    return (
+      <section className="users container">
+        <DemoLessonAttendanceView
+          lessonId={attendanceLessonId}
+          onClose={() => setAttendanceLessonId(null)}
+        />
+      </section>
+    );
+  }
+
+  return (
+    <section className="users container">
+      <h1 className="main-title">{t('demoLesson.title')}</h1>
+
+      {viewItem && (
+        <RecordViewModal
+          title={t('viewModal.title.demoLesson')}
+          fields={[
+            { label: t('columns.group_name'), value: viewItem.group?.name },
+            { label: t('columns.lesson_day'), value: formatDateDisplay(viewItem.date) },
+            { label: t('columns.start_time'), value: viewItem.start_time },
+            { label: t('columns.end_time'), value: viewItem.end_time },
+            { label: t('columns.room'), value: getLocalized(viewItem.room, 'name', lang) },
+            {
+              label: t('columns.teacher'),
+              value:
+                viewItem.teacher?.full_name ??
+                (viewItem.teacher ? `${viewItem.teacher.first_name} ${viewItem.teacher.last_name}` : '-'),
+            },
+            { label: t('columns.created_at'), value: formatCreatedAt(viewItem.created_at) },
+            { label: t('columns.updated_at'), value: formatCreatedAt(viewItem.updated_at) },
+            { label: 'ID', value: `#${viewItem.id}` },
+          ]}
+          onClose={() => setViewItem(null)}
+        />
+      )}
+
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal small">
+            <h3>
+              {deleteTarget === 'all'
+                ? t('demoLesson.confirmDeleteSelected', { total: selected.length })
+                : t('demoLesson.confirmDelete')}
+            </h3>
+
+            <div className="modal-actions">
+              <button className="danger" onClick={confirmDelete}>
+                {t('users.confirm')}
+              </button>
+              <button className="cancel" onClick={() => setShowDeleteModal(false)}>
+                {t('users.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── header ── */}
+      <div className="users-filters">
+        <Protected permission="demo_lessons.create">
+          <button className="add-new-user" onClick={openCreate}>
+            {t('users.addNew')}
+          </button>
+        </Protected>
+
+        <Protected permission="demo_lessons.delete">
+          <button
+            className="delete-all"
+            disabled={!selected.length}
+            onClick={() => askDelete('all')}
+          >
+            {t('users.delete')}
+          </button>
+        </Protected>
+
+        <FilterButton
+          onClick={() => setFilterOpen((v) => !v)}
+          active={filterOpen || activeFilterCount > 0}
+          expanded={filterOpen}
+          count={activeFilterCount}
+        />
+
+        <input
+          placeholder={t('demoLesson.searchPlaceholder')}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+      </div>
+
+      {/* ── table ── */}
+      <div className="dl-card">
+        {filterOpen && (
+          <FilterBar
+            fields={filterFields}
+            values={filters}
+            onChange={setFilters}
+            onReset={() => setFilters(EMPTY_DL_FILTERS)}
+            onClose={() => setFilterOpen(false)}
+          />
+        )}
+
+        <div className="users-table-wrapper" style={{ overflowX: 'auto' }}>
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={paginated.length > 0 && selected.length === paginated.length}
+                    onChange={(e) => toggleAll(e.target.checked)}
+                  />
+                </th>
+                {isVisible('id') && (
+                  <th className="th-sortable" onClick={() => setSortAsc((p) => !p)}>
+                    ID {sortAsc ? '↑' : '↓'}
+                  </th>
+                )}
+                {visibleColumns.map((colId) => (
+                  <th key={colId}>{columnHeader(colId)}</th>
+                ))}
+                <th>{t('demoLesson.table.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <TableSkeleton rowCount={8} columnCount={colCount} />
+              ) : paginated.length === 0 ? (
+                <EmptyState colSpan={colCount} message={t('demoLesson.notFound')} />
+              ) : (
+                paginated.map((lesson) => (
+                  <tr key={lesson.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(lesson.id)}
+                        onChange={() => toggleOne(lesson.id)}
+                      />
+                    </td>
+                    {isVisible('id') && <td>{lesson.id}</td>}
+                    {visibleColumns.map((colId) => {
+                      switch (colId) {
+                        case 'group_name':
+                          return <td key={colId}>{lesson.group?.name ?? '-'}</td>;
+                        case 'lesson_day':
+                          return <td key={colId}>{formatDateDisplay(lesson.date)}</td>;
+                        case 'start_time':
+                          return <td key={colId}>{lesson.start_time ?? '-'}</td>;
+                        case 'end_time':
+                          return <td key={colId}>{lesson.end_time ?? '-'}</td>;
+                        case 'room':
+                          return <td key={colId}>{getLocalized(lesson.room, 'name', lang)}</td>;
+                        case 'created_at':
+                          return <td key={colId}>{formatCreatedAt(lesson.created_at)}</td>;
+                        case 'updated_at':
+                          return <td key={colId}>{formatCreatedAt(lesson.updated_at)}</td>;
+                        case 'teacher':
+                          return (
+                    <td key={colId}>
+                      {lesson.teacher?.full_name ??
+                        (lesson.teacher
+                          ? `${lesson.teacher.first_name} ${lesson.teacher.last_name}`
+                          : '-')}
+                    </td>
+                          );
+                        default:
+                          return <td key={colId}>-</td>;
+                      }
+                    })}
+                    <td className="actions">
+                      <Protected permission="demo_lessons.show">
+                        <button
+                          type="button"
+                          className="user-view-btn"
+                          title={t('viewModal.view')}
+                          aria-label={t('viewModal.view')}
+                          onClick={() => setViewItem(lesson)}
+                        >
+                          <i className="fa-solid fa-eye" />
+                        </button>
+                      </Protected>
+                      <button
+                        className="user-view-btn"
+                        title={t('demoLesson.attendanceTitle')}
+                        onClick={() => setAttendanceLessonId(lesson.id)}
+                      >
+                        <i className="fa-solid fa-clipboard-list" />
+                      </button>
+                      <Protected permission="demo_lessons.edit">
+                        <button
+                          className="user-edit-btn"
+                          title={t('demoLesson.editTitle')}
+                          onClick={() => openEdit(lesson)}
+                        >
+                          <i className="fa-solid fa-pen" />
+                        </button>
+                      </Protected>
+                      <Protected permission="demo_lessons.delete">
+                        <button
+                          className="user-delete-btn"
+                          title={t('demoLesson.deleteTitle')}
+                          onClick={() => askDelete(lesson.id)}
+                        >
+                          <i className="fa-solid fa-trash" />
+                        </button>
+                      </Protected>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {filtered.length > 0 && (
+          <PaginationBar
+            page={safePage}
+            totalPages={lastPage}
+            total={filtered.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
+          />
+        )}
+      </div>
+
+      {/* ── modal ── */}
+      {modalOpen && (
+        <div
+          className="dl-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setModalOpen(false);
+          }}
+        >
+          <div className="dl-modal">
+            <div className="dl-modal-header">
+              <span>{editing ? t('demoLesson.editTitle') : t('demoLesson.modal.title')}</span>
+            </div>
+
+            <div className="dl-modal-body">
+              <div className="dl-form-grid">
+                {/* Guruh */}
+                <div className="dl-field">
+                  <label className="dl-label">{t('demoLesson.modal.group')}</label>
+                  <GroupSelect
+                    value={form.group_id}
+                    onChange={(v) => {
+                      const g = groups.find((gr) => String(gr.id) === v);
+                      const gid = Number(v);
+                      setForm((f) => ({
+                        ...f,
+                        group_id: v,
+                        teacher_id: g?.teacher?.id ? String(g.teacher.id) : f.teacher_id,
+                        lid_ids: groupLidIds[gid] ?? [],
+                      }));
+                    }}
+                    groups={groups}
+                    lidsMap={lidsMap}
+                  />
+                </div>
+
+                {/* Sana */}
+                <div className="dl-field">
+                  <label className="dl-label">{t('demoLesson.modal.date')}</label>
+                  <DateInput
+                    value={form.date}
+                    onChange={(v) => setForm((f) => ({ ...f, date: v }))}
+                  />
+                </div>
+
+                {/* Boshlanish vaqti */}
+                <div className="dl-field">
+                  <label className="dl-label">{t('demoLesson.modal.startTime')}</label>
+                  <TimeInput
+                    value={form.start_time}
+                    onChange={(v) => setForm((f) => ({ ...f, start_time: v }))}
+                  />
+                </div>
+
+                {/* Tugash vaqti */}
+                <div className="dl-field">
+                  <label className="dl-label">{t('demoLesson.modal.endTime')}</label>
+                  <TimeInput
+                    value={form.end_time}
+                    onChange={(v) => setForm((f) => ({ ...f, end_time: v }))}
+                  />
+                </div>
+
+                {/* Xona */}
+                <div className="dl-field">
+                  <label className="dl-label">{t('demoLesson.modal.room')}</label>
+                  <RoomSelect
+                    value={form.room_id}
+                    onChange={(v) => setForm((f) => ({ ...f, room_id: v }))}
+                    rooms={rooms}
+                    groups={groups}
+                    formDate={form.date}
+                    startTime={form.start_time}
+                    endTime={form.end_time}
+                  />
+                </div>
+
+                {/* O'qituvchi */}
+                <div className="dl-field">
+                  <label className="dl-label">{t('demoLesson.modal.teacher')}</label>
+                  <NativeSelect
+                    value={form.teacher_id}
+                    onChange={(v) => setForm((f) => ({ ...f, teacher_id: v }))}
+                    options={employeeOptions}
+                    placeholder={t('demoLesson.modal.teacherPlaceholder')}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="dl-modal-footer">
+              <button className="dl-btn-save" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? t('demoLesson.modal.saving') : t('demoLesson.modal.save')}
+              </button>
+              <button className="dl-btn-cancel" onClick={() => setModalOpen(false)}>
+                {t('demoLesson.modal.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
+
+export default DemoLessonPage;

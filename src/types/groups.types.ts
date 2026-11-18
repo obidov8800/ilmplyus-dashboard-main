@@ -1,0 +1,131 @@
+import type { ApiResponse, BaseEntity } from './common.types';
+import type { Course } from './course.types';
+import type { Level } from './level.types';
+import type { Branch } from './common.types';
+import type { AcademicYear } from './academicYear.types';
+
+export interface Room {
+  id: number;
+  name: string;
+  name_uz?: string;
+  branch: string;
+  capacity: number;
+  floor: number;
+}
+
+export interface Teacher extends BaseEntity {
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  full_name?: string;
+  branch_id: number;
+  phone: string;
+}
+
+export interface Employee {
+  id: number;
+  first_name?: string;
+  last_name?: string;
+  middle_name?: string;
+  full_name?: string;
+  role?: string;
+}
+
+export interface GroupStudent {
+  id: number;
+  first_name: string;
+  last_name: string;
+  father_name?: string | null;
+  group_id: number;
+  course_completion_pct: number;
+  attendance_pct: number;
+  debt: number;
+  manager_permission: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+
+export interface Group {
+  id: number;
+  name: string;
+  course_id?: number;
+  teacher_id?: number;
+  branch_id?: number;
+  room_id?: number;
+  /** Faqat maktabga tayyorlov (preschool) filial guruhlarida bor; oddiy filialda `null`. */
+  academic_year_id?: number | null;
+  academic_year?: AcademicYear | null;
+  start_date?: string;
+  end_date?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  // Schedule fields
+  course?: Course;
+  level?: Level;
+  branch?: Branch;
+  teacher?: ScheduleTeacher | null;
+  room?: ScheduleRoom | null;
+  days: string[];
+  start_time: string;
+  end_time: string;
+  duration?: number;
+  max_students?: number;
+  students_count?: number;
+  lids_count?: number;
+  leads_count?: number;
+  /** Guruhni kim yaratgan: backend `created_by` ni obyekt (`{ id, full_name }`), matn yoki foydalanuvchi id'si ko'rinishida beradi. */
+  created_by?: { id?: number; full_name?: string | null } | string | number | null;
+  /** Ba'zi javoblarda yaratuvchi alohida obyekt bo'lib ham keladi. */
+  creator?: { id?: number; full_name?: string | null } | null;
+}
+
+export interface ScheduleTeacher {
+  id: number;
+  first_name: string;
+  last_name: string;
+  middle_name?: string;
+  branch_id?: number;
+  phone?: string;
+}
+
+export interface ScheduleRoom {
+  id: number;
+  name: string;
+  name_uz?: string;
+  name_ru?: string;
+  name_en?: string;
+  capacity?: number;
+  floor?: number;
+}
+
+export interface GroupsApiResponse {
+  data: Group[];
+  total?: number;
+  meta?: {
+    last_page: number;
+    total: number;
+    current_page: number;
+  };
+}
+
+export type GroupsResponse = ApiResponse<Group[]>;
+
+export interface GroupPayload {
+  name: string;
+  /** Preschool filialda ixtiyoriy (yuborilmaydi), oddiy filialda majburiy. */
+  course_id?: number;
+  level_id?: number;
+  teacher_id: number;
+  branch_id: number;
+  room_id: number;
+  start_date: string;
+  end_date?: string;
+  start_time: string;
+  end_time: string;
+  max_students: number;
+  days: string[];
+  is_active: boolean;
+  duration?: number;
+}

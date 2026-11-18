@@ -1,0 +1,415 @@
+/*
+ * Global `table { table-layout: fixed }` va `th, td { overflow: hidden;
+ * text-overflow: ellipsis; white-space: nowrap }` (index.css) — butun
+ * ilovadagi barcha jadvallarni qoplaydi, sig'magan matnni "..." bilan
+ * kesib tashlaydi. Bu jadvalda esa matn to'liq ko'rinishi kerak: ustunlar
+ * o'z tarkibiga qarab kengayadi (`table-layout: auto`), qisqartirilmaydi;
+ * agar jadval ekran kengligidan katta bo'lib qolsa, `.payments-table-wrapper`
+ * (payments.css) allaqachon `overflow-x: auto` — gorizontal scroll shu
+ * yerdan ishlaydi.
+ *
+ * `.payments-table` emas, `.cp-price-table` orqali tekislanadi — chunki
+ * `.payments-table` klassi `payments` va `archive` sahifalarida ham
+ * ishlatiladi, ular esa o'zgarmasligi kerak.
+ */
+.cp-price-table {
+  table-layout: auto;
+}
+
+.cp-price-table th,
+.cp-price-table td {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+/* `.cp-pagination*` olib tashlandi — sahifa endi umumiy `PaginationBar`
+   komponentidan foydalanadi (`components/Pagination/pagination.css`). */
+
+/* Izoh maydoni: inputlar/selectlar bilan bir xil ko'rinishda */
+.add-payment-modal .form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #003366;
+  font-family: noto-m;
+  outline: none;
+  resize: vertical;
+  min-height: 96px;
+  transition: all 0.2s ease;
+}
+
+.add-payment-modal .form-group textarea:focus {
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.add-payment-modal .form-group textarea::placeholder {
+  color: #9aa9b8;
+}
+
+.add-payment-modal .form-group textarea:disabled {
+  background: #f7f9fb;
+  color: #7a8fa6;
+  cursor: not-allowed;
+}
+
+/* ===== Detail sahifasi ===== */
+.cp-detail-page {
+  margin-top: 30px !important;
+  padding-bottom: 40px;
+}
+
+.cp-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.cp-detail-title {
+  font-family: noto-b;
+  font-size: 22px;
+  color: #003366;
+  margin: 0;
+}
+
+.cp-detail-id {
+  color: #7a8fa6;
+  font-family: noto-m;
+}
+
+.cp-detail-header__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cp-detail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border: 1px solid #003366;
+  border-radius: 15px;
+  background: #fff;
+  color: #003366;
+  font-family: noto-m;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cp-detail-btn:hover {
+  background: #f5faff;
+}
+
+.cp-detail-btn--primary {
+  background: #003366;
+  color: #fff;
+}
+
+.cp-detail-btn--primary:hover {
+  background: #00274d;
+}
+
+.cp-detail-section {
+  background: #fff;
+  border: 1px solid #e6eaf0;
+  border-radius: 15px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.cp-detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: noto-m;
+  font-size: 16px;
+  color: #003366;
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.cp-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px 24px;
+}
+
+.cp-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cp-detail-item--wide {
+  grid-column: 1 / -1;
+}
+
+.cp-detail-label {
+  font-size: 13px;
+  color: #8b97a7;
+}
+
+.cp-detail-value {
+  font-size: 15px;
+  color: #003366;
+  font-family: noto-m;
+  word-break: break-word;
+}
+
+.cp-detail-status,
+.cp-detail-percent {
+  font-family: noto-b;
+}
+
+.cp-detail-state {
+  padding: 40px;
+  text-align: center;
+  color: #7a8fa6;
+}
+
+.cp-detail-state--error {
+  color: #e70a0a;
+}
+
+.course-price-history {
+  margin-bottom: 30px;
+}
+
+.course-price-history-title {
+  color: #003366;
+  font-size: 18px;
+  font-family: noto-m;
+  margin-bottom: 16px;
+}
+
+.course-price-history-item {
+  border: 1px solid #e6eaf0;
+  border-radius: 15px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: #fafbfd;
+}
+
+.course-price-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.course-price-history-action {
+  font-family: noto-m;
+  color: #003366;
+  font-size: 15px;
+  text-transform: capitalize;
+}
+
+.cp-history-action {
+  font-family: noto-b;
+  font-size: 15px;
+  text-transform: capitalize;
+}
+
+.cp-history-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: #e8f0fe;
+  color: #003366;
+  font-size: 12px;
+  font-family: noto-m;
+}
+
+.cp-history-old {
+  color: #8b97a7;
+  text-decoration: line-through;
+}
+
+.cp-history-new {
+  color: #27ae60;
+  font-family: noto-m;
+}
+
+.course-price-history-date {
+  font-size: 13px;
+  color: #8b97a7;
+}
+
+.course-price-history-body p {
+  margin: 6px 0;
+  color: #003366;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.course-price-history-body strong {
+  color: #666;
+}
+
+/* Prays-list PDF tugmasi */
+.cp-pricelist-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1.5px solid #ed7d31;
+  background-color: #ed7d31;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cp-pricelist-btn:hover:not(:disabled) {
+  background-color: #fff;
+  color: #ed7d31;
+}
+
+.cp-pricelist-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ommaviy tasdiqlash / bekor qilish (rad etish) tugmalari — toolbar `add/delete` bilan bir qatorda. */
+.payments-filters > .cp-bulk-btn {
+  order: 2;
+}
+
+.cp-bulk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  font-family: noto-m;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cp-bulk-btn--approve {
+  border: 1.5px solid #27ae60;
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.cp-bulk-btn--approve:hover:not(:disabled) {
+  background-color: #fff;
+  color: #27ae60;
+}
+
+.cp-bulk-btn--reject {
+  border: 1.5px solid #e67e22;
+  background-color: #fff;
+  color: #e67e22;
+}
+
+.cp-bulk-btn--reject:hover:not(:disabled) {
+  background-color: #e67e22;
+  color: #fff;
+}
+
+.cp-bulk-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Qatordagi tasdiqlash / bekor qilish ikonkalari. */
+.cp-approve-btn,
+.cp-reject-btn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.cp-approve-btn {
+  color: #27ae60;
+}
+
+.cp-reject-btn {
+  color: #e67e22;
+}
+
+/* Barcha sahifalarni tanlash taklifi. */
+.cp-select-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #eef4ff;
+  color: #003366;
+  font-family: noto-m;
+  font-size: 13px;
+}
+
+.cp-select-banner button {
+  border: 0;
+  background: transparent;
+  color: #0b57d0;
+  font-family: noto-b;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cp-reason {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1.5px solid #dde1e7;
+  border-radius: 10px;
+  font-family: noto-r;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .cp-detail-page {
+    margin-top: 16px !important;
+    padding-bottom: 24px;
+  }
+  .cp-detail-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .cp-detail-header__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .cp-detail-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .cp-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -1,0 +1,510 @@
+.registration {
+  margin-left: 0 !important;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 30px 0;
+}
+
+.container.registration {
+  margin-left: auto !important;
+  padding-left: var(--page-gutter, 20px) !important;
+  padding-right: var(--page-gutter, 20px) !important;
+}
+
+@media (max-width: 1400px) {
+  .container.registration {
+    padding-left: var(--page-gutter, 20px) !important;
+    padding-right: var(--page-gutter, 20px) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .registration {
+    padding: 16px 0 !important;
+    gap: 16px !important;
+  }
+  .registration-top__search {
+    width: 100% !important;
+  }
+}
+
+.registration-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.registration-top h1 {
+  font-size: 22px;
+  font-family: noto-b;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.registration-top__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* «Qo'shish» tugmasi — butun admindagi standart amal tugmasi bilan bir xil. */
+.registration-add-btn {
+  min-width: 120px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: 1.5px solid #003366;
+  background-color: #003366;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 14px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.registration-add-btn:hover {
+  background-color: #fff;
+  color: #003366;
+  font-family: noto-b;
+}
+
+.registration-top__search {
+  width: 380px !important;
+  height: 40px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  background-color: #fff !important;
+  border: 1.5px solid #dde1e7 !important;
+  border-radius: 10px !important;
+  padding: 0 14px !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+}
+
+.registration-top__search input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: 0 !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-size: 15px !important;
+  font-family: noto-m !important;
+  color: #1a1a1a !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.registration-top__search input::placeholder {
+  color: #ababab !important;
+}
+
+.registration-top__search i {
+  color: #8d8d8d !important;
+  font-size: 15px !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.registration-top__register-btn {
+  height: 46px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 15px;
+  background: #003366;
+  color: #fff;
+  font-size: 15px;
+  font-family: noto-sb;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.18s ease,
+    transform 0.1s ease;
+}
+
+.registration-top__register-btn:hover {
+  background: #00284f;
+}
+
+.registration-top__register-btn:active {
+  transform: scale(0.97);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Dashboard card
+═══════════════════════════════════════════════════════ */
+
+.dashboard-bottom {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+}
+
+.db-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.db-header__title {
+  font-size: 16px;
+  font-family: noto-b;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* `.db-select*` va pastdagi `.db-pagination*` olib tashlandi — sahifa endi
+   umumiy `PaginationBar` komponentidan foydalanadi
+   (`components/Pagination/pagination.css`). */
+
+/* ═══════════════════════════════════════════════════════
+   Table
+═══════════════════════════════════════════════════════ */
+
+.db-table-wrapper {
+  overflow-x: auto !important;
+  outline: none !important;
+}
+
+.db-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: 14px !important;
+  table-layout: auto !important;
+}
+
+.db-table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+}
+
+.db-table thead tr {
+  background: #e6e6e6 !important;
+}
+
+.db-table th {
+  padding: 10px !important;
+  text-align: center !important;
+  font-size: 14px !important;
+  font-family: noto-m !important;
+  color: #003366 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  border: 1px solid #d9d9d9 !important;
+}
+
+.db-table td {
+  padding: 10px !important;
+  text-align: center !important;
+  border: 1px solid #d9d9d9 !important;
+  font-family: noto-m !important;
+  color: #000 !important;
+  vertical-align: middle !important;
+  overflow: visible !important;
+}
+
+/* Column min-widths — 9 columns */
+/* 1: Lid id */
+.db-table th:nth-child(1),
+.db-table td:nth-child(1) {
+  min-width: 70px !important;
+  width: 70px !important;
+}
+
+/* 2: F.I.Sh */
+.db-table th:nth-child(2),
+.db-table td:nth-child(2) {
+  min-width: 220px !important;
+  width: 22% !important;
+  text-align: center !important;
+}
+
+/* 3: Yo'nalish */
+.db-table th:nth-child(3),
+.db-table td:nth-child(3) {
+  min-width: 210px !important;
+  width: 20% !important;
+}
+
+/* 4: Guruh */
+.db-table th:nth-child(4),
+.db-table td:nth-child(4) {
+  min-width: 130px !important;
+}
+
+/* 5: Jinsi */
+.db-table th:nth-child(5),
+.db-table td:nth-child(5) {
+  min-width: 80px !important;
+}
+
+/* 6: Filial */
+.db-table th:nth-child(6),
+.db-table td:nth-child(6) {
+  min-width: 140px !important;
+}
+
+/* 7: Manba */
+.db-table th:nth-child(7),
+.db-table td:nth-child(7) {
+  min-width: 150px !important;
+}
+
+/* 8: Sana */
+.db-table th:nth-child(8),
+.db-table td:nth-child(8) {
+  min-width: 160px !important;
+  white-space: nowrap !important;
+}
+
+/* 9: Amallar */
+.db-table th:nth-child(9),
+.db-table td:nth-child(9) {
+  min-width: 120px !important;
+  white-space: nowrap !important;
+}
+
+.db-table__row:last-child td {
+  border-bottom: none !important;
+}
+
+.db-table__row:hover td {
+  background: #00336617 !important;
+  cursor: pointer !important;
+}
+
+/* Id cell */
+.db-id-cell {
+  font-family: noto-sb !important;
+  color: #6b7280 !important;
+  font-size: 13px !important;
+}
+
+/* F.I.Sh cell */
+.db-fish-cell {
+  font-family: noto-sb !important;
+  color: #111827 !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  display: inline-block !important;
+  text-align: center !important;
+}
+
+/* Direction cell */
+.db-direction-cell {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-width: 140px !important;
+}
+
+.db-direction-cell__dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #f97316 !important;
+  flex-shrink: 0 !important;
+}
+
+.db-direction-cell__text {
+  color: #374151 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+/* Other cells */
+.db-group-cell {
+  font-family: noto-sb !important;
+  color: #111827 !important;
+  white-space: nowrap !important;
+}
+
+.db-gender-cell,
+.db-branch-cell,
+.db-date-cell {
+  color: #6b7280 !important;
+  white-space: nowrap !important;
+}
+
+/* Source badge */
+.db-source-badge {
+  display: inline-block !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-family: noto-b !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap !important;
+}
+
+.db-source-badge--tavsiya,
+.db-source-badge--default {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  font-family: noto-sb !important;
+}
+
+/* "Ofis yonidan o'tib kirgan" → slugified to "ofis-yonidan-otib-kirgan" */
+.db-source-badge--ofis-yonidan-otib-kirgan {
+  background: #f0fdf4 !important;
+  color: #15803d !important;
+  font-family: noto-sb !important;
+}
+
+.db-source-badge--instagram {
+  background: #fce7f3 !important;
+  color: #db2777 !important;
+}
+
+.db-source-badge--telegram {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+.db-source-badge--website {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+/* Actions */
+.db-actions-cell {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  flex-wrap: nowrap !important;
+}
+
+/* Boshqa sahifalardagi yassi (fonsiz, doirachasiz) ikonka uslubiga
+   moslashtirildi — ilgari har biri oq doiracha-fon ichida edi. */
+.db-action-btn {
+  border: none !important;
+  background: transparent !important;
+  color: inherit;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.14s ease !important;
+}
+
+.db-action-btn:hover {
+  transform: scale(1.15) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Empty state
+═══════════════════════════════════════════════════════ */
+
+.db-empty-state {
+  padding: 56px 24px;
+  text-align: center;
+}
+
+.db-empty-state__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-empty-state__icon {
+  font-size: 32px;
+  color: #d1d5db;
+  margin-bottom: 4px;
+}
+
+.db-empty-state__inner p {
+  margin: 0;
+  font-size: 15px;
+  font-family: noto-sb;
+  color: #374151;
+}
+
+.db-empty-state__inner span {
+  font-size: 13px;
+  font-family: noto-m;
+  color: #9ca3af;
+}
+
+/* Pagination — umumiy `PaginationBar` (`components/Pagination/pagination.css`).
+   Eski `.db-pagination*` nusxasi shu yerdan olib tashlandi. */
+
+/* Responsive Scaling: 1920px -> 1200px */
+@media (max-width: 1600px) {
+  .registration {
+    margin-left: 100px !important;
+    padding: 24px 0;
+  }
+  .db-table th,
+  .db-table td {
+    padding: 12px 16px;
+  }
+  .db-header {
+    padding: 16px 20px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .registration {
+    margin-left: 32px !important;
+    gap: 24px;
+    padding: 20px 0;
+  }
+  .registration-top__search {
+    width: 320px;
+  }
+  .db-table th,
+  .db-table td {
+    padding: 10px 14px;
+  }
+  .db-student-cell__avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .db-header {
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .registration {
+    margin-left: 24px !important;
+    gap: 20px;
+  }
+  .registration-top__search {
+    width: 280px;
+    height: 40px;
+  }
+  .registration-top__register-btn {
+    height: 40px;
+    padding: 0 16px;
+  }
+  .db-table th,
+  .db-table td {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}

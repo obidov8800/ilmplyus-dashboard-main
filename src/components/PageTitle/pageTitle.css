@@ -1,0 +1,33 @@
+/* Sahifa sarlavhasi: matn + belgi (Moliya bo'limi). Klasslar `pgt-` prefiksli. */
+main.page h1.pgt,
+h1.pgt {
+  display: block;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-family: noto-b, sans-serif;
+  font-size: 20px;
+  line-height: 1.3;
+  color: #1a2332;
+}
+
+/* `main.page h1.pgt {margin:0}` dan kuchliroq bo'lishi shart — aks holda sarlavha keyingi blokka yopishib qoladi. */
+main.page h1.pgt.pgt--spaced,
+h1.pgt.pgt--spaced {
+  margin-bottom: 14px;
+}
+
+.pgt-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: #ffefdb;
+  border-radius: 10px;
+  font-size: 17px;
+  color: #fe9100;
+}
+
+main.page h1.pgt { text-align: center; width: 100%; color: #003366; }

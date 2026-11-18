@@ -1,0 +1,565 @@
+/* Kunlik kassa hisobotlari — ro'yxat, batafsil modal, smena yopish va tuzatish.
+   Palitra: #003366 (asosiy), #FE9100 (aksent), #2AA411, #E70A0A, border #BDBDBD.
+   Barcha class nomlari `dcr-` prefiksi bilan — global jadval stillari bilan
+   to'qnashmasligi uchun. */
+
+.dcr-container {
+  margin-top: 24px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: calc(100vh - 50px);
+}
+
+/* ---------- Sarlavha qatori ---------- */
+.dcr-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.dcr-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dcr-title {
+  font-family: noto-b, sans-serif;
+  font-size: 22px;
+  line-height: 1.2;
+  color: #003366;
+  margin: 0;
+}
+
+/* ---------- Tugmalar ---------- */
+.dcr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 15px;
+  font-family: noto-b, sans-serif;
+  font-size: 12px;
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.18s ease;
+}
+.dcr-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+.dcr-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dcr-btn--lg {
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 15px;
+}
+
+.dcr-btn--primary {
+  background: #003366;
+}
+.dcr-btn--accent {
+  background: #fe9100;
+}
+.dcr-btn--success {
+  background: #2aa411;
+}
+.dcr-btn--danger {
+  background: #e70a0a;
+}
+.dcr-btn--ghost {
+  background: #ffffff;
+  color: #003366;
+  border: 1px solid #bdbdbd;
+}
+
+/* ---------- Boshqa moliya sahifalaridagi kabi alohida filtr toolbar'i ---------- */
+.dcr-filter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.dcr-filter-toolbar .fb-bar {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dcr-close-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.dcr-filter-toolbar .fb-bar {
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border-bottom: 0;
+}
+
+.dcr-filter-toolbar .fb-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dcr-filter-toolbar .fb-field {
+  flex: 1 1 180px;
+  min-width: 150px;
+}
+
+.dcr-filter-toolbar .fb-reset-btn {
+  margin-left: auto;
+}
+
+/* ---------- Jadval kartasi ---------- */
+.dcr-card {
+  background: #ffffff;
+  border: 1px solid #bdbdbd;
+  overflow: hidden;
+}
+
+.dcr-table-scroll {
+  overflow-x: auto;
+}
+
+.dcr-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1250px;
+}
+
+/* Har bir katak chegarali — maketda jadval to'r ko'rinishida. */
+.dcr-table th,
+.dcr-table td {
+  color: #000000;
+  vertical-align: middle;
+}
+
+.dcr-table thead th {
+  white-space: nowrap;
+}
+
+/* Guruh sarlavhalari: KIRIM / CHIQIM */
+.dcr-table th.dcr-group {
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-size: 12px;
+}
+.dcr-table th.dcr-group--income {
+  background: #003366;
+  border-color: #003366;
+}
+.dcr-table th.dcr-group--expense {
+  background: #fe9100;
+  border-color: #fe9100;
+}
+
+/* Guruh ostidagi ustun nomlari — yengil tonlangan fon. */
+.dcr-table th.dcr-sub--income {
+  background: #e7eef6;
+  color: #003366;
+}
+.dcr-table th.dcr-sub--expense {
+  background: #fff2df;
+  color: #a35c00;
+}
+
+.dcr-table tbody td {
+  text-align: center;
+}
+/* Hisobot raqami / filial / kassir — matnli ustunlar chapga tekislanadi. */
+.dcr-table tbody td:nth-child(2),
+.dcr-table tbody td:nth-child(4),
+.dcr-table tbody td:nth-child(5) {
+  text-align: left;
+}
+
+.dcr-num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.dcr-num--income {
+  color: #003366;
+}
+.dcr-num--expense {
+  color: #a35c00;
+}
+.dcr-num-col {
+  text-align: right !important;
+}
+
+.dcr-strong {
+  font-family: noto-b, sans-serif;
+}
+
+.dcr-empty {
+  padding: 34px 16px;
+  text-align: center !important;
+  color: #6b7280;
+  font-family: noto-m, sans-serif;
+  font-size: 13px;
+}
+
+/* ---------- Status belgisi ---------- */
+.dcr-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: noto-b, sans-serif;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.dcr-status--created {
+  background: #eef1f4;
+  color: #4b5563;
+}
+.dcr-status--sent {
+  background: #e7eef6;
+  color: #003366;
+}
+.dcr-status--assistant_accepted {
+  background: #fff2df;
+  color: #a35c00;
+}
+.dcr-status--accountant_approved {
+  background: #e4f6e0;
+  color: #1f7c0d;
+}
+.dcr-status--returned {
+  background: #fde5e5;
+  color: #e70a0a;
+}
+.dcr-status--finalized {
+  background: #003366;
+  color: #ffffff;
+}
+
+/* ---------- Amallar ustuni ---------- */
+.dcr-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 120px;
+}
+
+/* ---------- Footer / sahifalash ----------
+   `.dcr-footer` / `.dcr-page-btn` olib tashlandi — sahifa endi umumiy
+   `PaginationBar` komponentidan foydalanadi. */
+
+/* =========================================================
+   Modallar
+   ========================================================= */
+.dcr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.dcr-modal {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.dcr-modal--wide {
+  max-width: 1080px;
+}
+
+.dcr-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: #003366;
+  color: #ffffff;
+}
+
+.dcr-modal-title {
+  margin: 0;
+  font-family: noto-b, sans-serif;
+  font-size: 17px;
+  color: #ffffff;
+}
+
+.dcr-modal-subtitle {
+  margin: 4px 0 0;
+  font-family: noto-m, sans-serif;
+  font-size: 12px;
+  color: #fe9100;
+}
+
+.dcr-modal-close {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 0;
+}
+.dcr-modal-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dcr-modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dcr-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px 22px;
+  border-top: 1px solid #bdbdbd;
+}
+
+/* ---------- Batafsil modal: yuqori xulosa ---------- */
+.dcr-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px 20px;
+  padding: 14px 16px;
+  background: #f4f7fa;
+  border: 1px solid #d6dde5;
+  border-radius: 10px;
+}
+
+.dcr-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.dcr-summary-label {
+  font-family: noto-b, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+.dcr-summary-value {
+  font-family: noto-b, sans-serif;
+  font-size: 13px;
+  color: #003366;
+  word-break: break-word;
+}
+
+/* ---------- Tablar ---------- */
+.dcr-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #d6dde5;
+}
+
+.dcr-tab {
+  padding: 9px 18px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  font-family: noto-b, sans-serif;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+.dcr-tab:hover {
+  color: #003366;
+}
+.dcr-tab.active {
+  color: #003366;
+  border-bottom-color: #fe9100;
+}
+
+.dcr-tab-panel {
+  overflow-x: auto;
+}
+
+.dcr-inner-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+.dcr-inner-table th,
+.dcr-inner-table td {
+  text-align: left;
+}
+.dcr-inner-table thead th {
+  white-space: nowrap;
+}
+
+.dcr-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  padding: 12px 16px;
+  background: #fff8ef;
+  border: 1px solid #ffd9a8;
+  border-radius: 10px;
+  font-family: noto-m, sans-serif;
+  font-size: 12.5px;
+  color: #6b5233;
+}
+.dcr-totals b {
+  font-family: noto-b, sans-serif;
+  color: #a35c00;
+}
+
+/* ---------- Modal formalari ---------- */
+.dcr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dcr-form--grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+.dcr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.dcr-field label {
+  font-family: noto-m, sans-serif;
+  font-size: 13px;
+  color: #000000;
+}
+.dcr-req {
+  color: #e70a0a;
+  margin-left: 3px;
+}
+
+.dcr-field input,
+.dcr-field select,
+.dcr-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #bdbdbd;
+  border-radius: 15px;
+  font-family: noto-m, sans-serif;
+  font-size: 13px;
+  color: #000000;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.18s ease;
+}
+.dcr-field textarea {
+  min-height: 78px;
+  resize: vertical;
+}
+.dcr-field input[readonly] {
+  background: #f3f4f6;
+  cursor: default;
+}
+.dcr-field input:focus,
+.dcr-field select:focus,
+.dcr-field textarea:focus {
+  border-color: #003366;
+}
+.dcr-field input:disabled,
+.dcr-field select:disabled,
+.dcr-field textarea:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.dcr-hint {
+  margin: 0;
+  font-family: noto-m, sans-serif;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1200px) {
+  .dcr-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .dcr-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dcr-container {
+    padding: 16px 14px 30px;
+  }
+  .dcr-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dcr-header .dcr-btn--lg {
+    width: 100%;
+  }
+  .dcr-summary {
+    grid-template-columns: 1fr;
+  }
+  .dcr-form--grid {
+    grid-template-columns: 1fr;
+  }
+  .dcr-modal-footer {
+    flex-direction: column-reverse;
+  }
+  .dcr-modal-footer .dcr-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .dcr-filter-toolbar .fb-bar {
+    align-items: stretch;
+  }
+  .dcr-filter-toolbar .fb-field {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+  .dcr-filter-toolbar .fb-reset-btn {
+    width: 100%;
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,541 @@
+.attendance-page {
+  width: 100%;
+  max-width: 1262px;
+  padding: 25px 50px;
+  margin-top: 30px !important;
+  margin-bottom: 30px !important;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Bo'lim tablari (permission bilan ko'rinadi) */
+.attendance-dept-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.attendance-dept-tab {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-family: noto-m;
+  font-size: 15px;
+  color: #666;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.attendance-dept-tab:hover {
+  color: #003366;
+  background: rgba(0, 51, 102, 0.04);
+}
+
+.attendance-dept-tab.active {
+  color: #003366;
+  border-bottom-color: #fe9100;
+  font-family: noto-b;
+}
+
+/* Kunning yagona badge'i: "09:00-18:00 Kelgan" (vaqt oralig'i + umumiy status) */
+.attendance-day-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-family: noto-b;
+  white-space: nowrap;
+  background: #f1f5f9;
+}
+
+.attendance-day-times {
+  font-family: noto-b;
+  color: #003366;
+}
+
+.attendance-day-status.status-plus {
+  background: #e6f4ea;
+}
+
+.attendance-day-status.status-k {
+  background: #fff4e5;
+}
+
+.attendance-day-status.status-nb {
+  background: #fdecea;
+}
+
+.attendance-day-status.status-s {
+  background: #fff8e1;
+}
+
+/* Tanlangan kunda yozuv bo'lmaganda ko'rsatiladigan oxirgi faollik */
+.attendance-last-activity {
+  opacity: 0.6;
+}
+
+.attendance-last-date {
+  font-size: 11px;
+  color: #777;
+  margin-left: 5px;
+  font-family: noto-m;
+}
+
+/* Filters */
+.attendance-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.attendance-filters select,
+.attendance-filters input {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1.5px solid #dde1e7;
+  outline: none;
+  min-width: 170px;
+  font-family: noto-m;
+  font-size: 14px;
+  color: #1a2332;
+}
+
+.attendance-filters select:focus,
+.attendance-filters input:focus {
+  border-color: #003366;
+}
+
+.attendance-filters input::placeholder {
+  color: #888;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-family: noto-m;
+  color: #333 !important;
+  white-space: nowrap;
+}
+
+.legend-item b {
+  font-family: noto-b;
+}
+
+.status-plus {
+  color: #1a7f37;
+}
+.status-nb {
+  color: #ff0000;
+}
+.status-s {
+  color: #003366;
+}
+.status-f {
+  color: #fe9100;
+}
+.status-k {
+  color: #ff4d00;
+}
+
+/* Table (users.css bilan bir xil ko'rinish) */
+.attendance-table-wrapper {
+  overflow-x: auto;
+  flex: 1;
+}
+
+.attendance-list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-list-table input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* users.css dagi global `.actions { display: flex }` td ni qatordan chiqarib
+   yuboradi — jadval katagi sifatida qoldiramiz */
+.attendance-list-table td.actions {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.attendance-list-table td.actions .actions-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.attendance-list-table td.actions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+}
+
+.employee-link {
+  border: none;
+  background: transparent;
+  color: #003366;
+  font-family: noto-m;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.employee-link:hover {
+  font-family: noto-b;
+}
+
+/* Status (type) ustuni */
+.type-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-family: noto-m;
+  white-space: nowrap;
+}
+
+.type-badge b {
+  font-family: noto-b;
+}
+
+.type-in {
+  background: #e6f4ea;
+  color: #1a7f37;
+}
+
+.type-out {
+  background: #fdecea;
+  color: #c62828;
+}
+
+.type-none {
+  background: #f1f3f5;
+  color: #555;
+}
+
+.status-codes {
+  display: inline-flex;
+  gap: 4px;
+  font-family: noto-b;
+}
+
+/* Edit modal */
+.attendance-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.attendance-page .form-group {
+  margin-bottom: 12px;
+}
+
+.popover-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.status-btn {
+  flex: 1;
+  height: 36px;
+  border: 1px solid #dee2e6;
+  border-radius: 15px;
+  background: #fff;
+  cursor: pointer;
+  font-family: noto-b;
+}
+
+.status-btn.selected {
+  background: #003366;
+  color: #fff;
+  border-color: #003366;
+}
+
+.comment-area {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  padding: 8px 12px;
+  font-size: 14px;
+  resize: none;
+  font-family: noto-r;
+  outline: none;
+}
+
+.comment-area:focus {
+  border-color: #003366;
+}
+
+/* Detail page */
+.detail-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-topbar input[type='month'] {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 15px;
+  border: 1px solid #003366;
+  outline: none;
+  font-family: noto-m;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 15px;
+  border: 2px solid #003366;
+  background: #003366;
+  color: #fff;
+  font-family: noto-m;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #fff;
+  color: #003366;
+}
+
+.detail-section-title {
+  font-family: noto-b;
+  font-size: 16px;
+  color: #003366;
+  margin: 24px 0 10px;
+}
+
+.detail-card {
+  border: 1px solid #d9d9d9;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.detail-name {
+  font-family: noto-b;
+  font-size: 20px;
+  color: #003366;
+  margin-bottom: 10px;
+}
+
+.detail-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-family: noto-m;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 18px;
+}
+
+.detail-meta b {
+  font-family: noto-b;
+  color: #003366;
+}
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.detail-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #f5f7fa;
+}
+
+.detail-stat span {
+  font-size: 13px;
+  font-family: noto-m;
+  color: #666;
+}
+
+.detail-stat b {
+  font-size: 20px;
+  font-family: noto-b;
+  color: #003366;
+}
+
+.time-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.attendance-list-table .col-date {
+  white-space: nowrap;
+  width: 110px;
+  min-width: 110px;
+}
+
+/* Izoh — kesilmasin, to'liq o'ralib chiqsin */
+.attendance-list-table .col-comment {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+  max-width: none;
+  min-width: 220px;
+  text-align: center;
+}
+
+.attendance-list-table .col-times {
+  width: 120px;
+  min-width: 120px;
+  vertical-align: middle;
+}
+
+/* Juftlikda mos vaqt yo'q bo'lsa — qatorlar bir chiziqda turishi uchun bo'sh chip */
+.time-empty {
+  background: #f1f3f5;
+  color: #aaa;
+}
+
+.time-chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-family: noto-m;
+}
+
+.time-in {
+  background: #e6f4ea;
+  color: #1a7f37;
+}
+
+.time-out {
+  background: #fdecea;
+  color: #c62828;
+}
+
+@media (max-width: 768px) {
+  .attendance-page {
+    padding: 12px !important;
+    margin-top: 14px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .attendance-dept-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .attendance-dept-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .attendance-dept-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .attendance-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .attendance-filters select,
+  .attendance-filters input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .legend {
+    margin-left: 0;
+    gap: 10px;
+  }
+
+  .legend-item {
+    font-size: 12px;
+  }
+
+  .detail-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .detail-topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .detail-topbar input[type='month'],
+  .back-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .attendance-edit-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-stats {
+    grid-template-columns: 1fr;
+  }
+}
+.attendance-lesson-schedule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 6px;
+}

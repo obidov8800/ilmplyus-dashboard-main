@@ -1,0 +1,109 @@
+/* O'quv yillari sahifasi. Jadval/filtr/modal asosi `users.css` dan (butun admin bilan bir xil). */
+
+.ay-modal {
+  width: 100%;
+  max-width: 460px;
+}
+
+.ay-modal-title {
+  font-family: noto-b;
+  font-size: 19px;
+  color: #1a2332;
+  text-align: center;
+  margin: 0 0 4px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.ay-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.ay-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ay-form .form-group label {
+  font-size: 13px;
+  font-family: noto-sb, sans-serif;
+  color: #4b5563;
+}
+
+.ay-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 520px) {
+  .ay-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ay-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: #1a2332;
+  cursor: pointer;
+}
+
+.ay-check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #003366;
+  flex: none;
+}
+
+.ay-hint {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 12px;
+  color: #8b97a7;
+}
+
+/* «Guruhlar soni» — son bosilsa shu o'quv yilining guruhlariga o'tadi */
+.ay-groups-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: noto-b;
+  font-size: inherit;
+  color: #22a7f0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.ay-groups-link:hover {
+  color: #003366;
+}
+
+/* Faol qilish (yashil galochka) */
+.ay-activate-btn {
+  font-size: 18px;
+  color: #1e9e5a;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ay-activate-btn:hover {
+  color: #14733f;
+}
+
+/* O'chirib bo'lmaydigan yil (faol yoki guruhi bor). Faqat shu sahifada: `.users-table` Foydalanuvchilar sahifasiniki ham. */
+.ay-page .users-table .user-delete-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

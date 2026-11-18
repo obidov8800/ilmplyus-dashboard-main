@@ -1,0 +1,670 @@
+/*
+ * Admin: BIR XIL ko'rinish qoidalari (sahifa sarlavhasi, jadval ustunlari/katakchalari, jadval o'ramlari).
+ *
+ * Nega alohida fayl: har sahifa o'z jadval sinfini (`users-table`, `fin-table`, `ps-table`, `pdr-table`...)
+ * va o'z CSS'ini yozgan — sarlavha rangi/shrifti/bo'shlig'i, katak o'lchami, chegara rangi, o'ram
+ * burchaklari sahifadan sahifaga farq qilardi. Namuna — eng ko'p uchraydigan `.users-table` ko'rinishi
+ * (`index.css` oxiridagi "yagona sarlavha" bloki): och-kulrang fon, to'q ko'k qalin matn, 1px kulrang
+ * chegara, 10px bo'shliq. Bu fayl o'sha ko'rinishni BARCHA jadvalga majburlaydi.
+ *
+ * Ulanishi: `main.tsx`da `index.css`dan keyin. Sahifa CSS'lari (lazy) KEYIN yuklanadi, shu sabab
+ * har bir qoida `main.page` prefiksi bilan yoziladi (spetsifiklik sahifa qoidalaridan baland).
+ */
+
+/* ── 1. Sahifa sarlavhasi ───────────────────────────────────────────────────
+   Ilgari: 20 / 22 / 24 / 26px, noto-b yoki noto-m, qora / to'q ko'k / kulrang-ko'k.
+   Joylashuvi (markazda yoki chapda) har sahifaning o'z maketiga bog'liq — tegilmaydi. */
+main.page h1,
+main.page .main-title {
+  font-family: noto-b, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a2332;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+/* ── 2. Jadval: ustun sarlavhasi ──────────────────────────────────────────
+   `.dcr-table` (kunlik kassa hisoboti) bu yerda YO'Q: unda KIRIM/CHIQIM guruh sarlavhalari ataylab
+   rangli (ko'k / to'q sariq) — ularni bir xil kulrang qilish ma'noni yo'qotardi. */
+main.page :is(
+  .users-table, .dl-att-table, .contracts-table, .fin-table, .ps-table, .pa-table, .lessons-table,
+  .sc-table, .dcr-inner-table, .payments-table, .branch-data-table, .role-data-table,
+  .attendance-list-table,
+  .db-table, .ipt-table, .pdr-table
+) thead th {
+  /* `!important`: ba'zi sahifa CSS'lari (`.ipt-table th`, `.db-table th`) sarlavha shriftini
+     o'zi `!important` bilan qo'ygan — majburlash uchun shu yerda ham kerak. */
+  background-color: #e6e6e6 !important;
+  color: #003366 !important;
+  font-family: noto-b, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.35;
+  text-transform: none !important;
+  letter-spacing: 0;
+  text-align: center !important;
+  white-space: nowrap;
+  vertical-align: middle;
+  padding: 10px !important;
+  border: 1px solid #d9d9d9 !important;
+}
+
+/* ── 3. Jadval: katakchalar ─────────────────────────────────────────────────
+   `pdr-table`/`ps-table`/`pa-table` katakchalarida ichki maket bor (ko'p qatorli
+   ro'yxatlar) — ularning hizalanishi va bo'shlig'i tegilmaydi, faqat shrift/rang/chegara. */
+main.page :is(
+  .users-table, .dl-att-table, .contracts-table, .fin-table, .lessons-table, .sc-table, .dcr-table,
+  .dcr-inner-table, .payments-table, .branch-data-table, .role-data-table, .attendance-list-table,
+  .db-table, .ipt-table
+) tbody td {
+  font-family: noto-m, sans-serif;
+  font-size: 14px;
+  color: #000;
+  padding: 10px;
+  border: 1px solid #d9d9d9;
+  vertical-align: middle;
+}
+
+main.page :is(.ps-table, .pa-table, .pdr-table) tbody td {
+  font-family: noto-m, sans-serif;
+  font-size: 14px;
+  color: #000;
+  border-color: #d9d9d9;
+}
+
+/* ── 4. Jadval o'ramlari (karta) ────────────────────────────────────────────
+   Karta ko'rinishidagi o'ramlar: burchak radiusi, chegara rangi va soya bir xil. */
+main.page :is(
+  .contracts-table-card, .dcr-card, .fin-table-wrapper, .ipt-card, .lessons-table-wrapper, .pa-card,
+  .pdr-card, .ps-card, .sc-table-card, .dl-card
+) {
+  border-radius: 12px;
+  border-color: #d9d9d9;
+  box-shadow: none;
+}
+
+/* ── 5. Jadval matni QIRQILMASIN ────────────────────────────────────────────
+   `index.css`dagi umumiy qoida (`table { table-layout: fixed }` + `th, td { overflow: hidden;
+   text-overflow: ellipsis }`) ustunlarni teng bo'lib, matnni "…" bilan kesib qo'yardi:
+   masalan To'lovlar jadvalida "Komissiya foizi" sarlavhasi, Oylik tuzatishlarida xodim
+   ismi ko'rinmasdi. `users-table` esa kesmaydi — sig'masa o'ram gorizontal aylantiriladi.
+   Endi hamma jadval shunday: ustun kengligi mazmunga qarab, matn to'liq. */
+main.page :is(
+  .users-table, .dl-att-table, .contracts-table, .fin-table, .ps-table, .pa-table,
+  .lessons-table, .sc-table, .dcr-table, .dcr-inner-table, .payments-table,
+  .branch-data-table, .role-data-table, .attendance-list-table, .db-table, .ipt-table, .pdr-table
+) {
+  table-layout: auto;
+}
+
+/* Remove positional widths (53 / 80 / 203px): hidden/reordered columns
+   must not inherit another column's size. Content determines the width. */
+main.page table > :is(thead, tbody, tfoot) > tr > :is(th, td) {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+/* Selection and ID columns only take the space their content needs.
+   ID is first without selection, second when the selection column exists. */
+main.page table > thead > tr > th:first-child,
+main.page table > tbody > tr > td:first-child:not([colspan]),
+main.page table:has(> thead > tr > th:first-child input[type='checkbox']) > thead > tr > th:nth-child(2),
+main.page table:has(> thead > tr > th:first-child input[type='checkbox']) > tbody > tr > td:nth-child(2):not([colspan]),
+main.page table > thead > tr > th.th-sortable,
+main.page table:has(> tbody > tr > td.actions) > thead > tr > th:last-child,
+main.page table > tbody > tr > td.actions {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* ID ustuni (sarlavhasi saralanadigan `th-sortable`, belgilash katagidan keyingi 2-ustun) BARCHA jadvalda bir xil
+   ixcham: yon bo'shliqlari 8px (Foydalanuvchilarda 49px edi, Filiallar/Bo'limlar/Rollarda esa 10px chet bilan 53px —
+   shu sabab "filialda ID kichiklashmadi" ko'rinardi). Kengligi `width: 1%` bilan mazmunga moslanadi (yuqorida). */
+main.page table:has(> thead > tr > th:nth-child(2).th-sortable) > :is(thead, tbody) > tr > :is(th, td):nth-child(2):not([colspan]) {
+  padding-inline: 8px !important;
+  overflow: visible;
+  text-overflow: clip;
+  font-variant-numeric: tabular-nums;
+}
+
+main.page :is(.payments-table, .pa-table, .dcr-table, .pdr-table) :is(th, td) {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Ro'yxat-jadval emas (ichida ko'p qatorli bloklar bor): umumiy "birinchi ustun 53px / ikkinchi 80px /
+   oxirgisi 203px" qoidasi (`index.css`) bu jadvallarda xodim ismini va tugmalarni siqib tashlardi. */
+main.page :is(.pa-table, .dcr-table, .pdr-table) :is(th, td):is(:first-child, :nth-child(2), :last-child) {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+/* ── 6. «Holati» belgisi (pill) ─────────────────────────────────────────────
+   Barcha jadvallarda holat bir xil ko'rinishda: `components/StatusBadge.tsx`.
+   Avval: oddiy matn, rangli matn, 5–20px radiusli, 10–13px o'lchamli har xil "pill"lar. */
+.st-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.st-pill--success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.st-pill--danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.st-pill--warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.st-pill--info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.st-pill--neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* ── 7. «Amallar» ustuni doim ko'rinadi ─────────────────────────────────────
+   Ustunlar ko'p jadvallarda (Foydalanuvchilar 14, Filiallar 21, Kurs narxlari 18 ustun...) jadval ekranga
+   sig'maydi va o'ram gorizontal aylantiriladi — eng o'ngdagi «Amallar» (ko'rish / tahrirlash / o'chirish)
+   ustuni ekrandan chiqib ketardi: tugmani topish uchun jadvalni yon tomonga surish kerak edi.
+   Endi shu ustun o'ng chetga yopishib turadi (`position: sticky`) — jadval qancha keng bo'lmasin, tugmalar
+   har doim ko'rinadi. Faqat oxirgi katakchasida amal ikonkalari bor jadvallarga qo'llanadi (`:has`).
+   Faqat kengligi 1100px dan katta ekranda: tor ekranda 200px li ustun jadvalning deyarli hammasini yopib
+   qo'yardi (telefonda jadval avvalgidek aylantiriladi).
+
+   Yopishqoq katakning foni ostidan aylanayotgan ustunlarni yopishi uchun SHAFFOF EMAS, lekin qatorning o'z
+   fonidan farq qilmasligi kerak: ko'p jadval (`users-table`, `branch-data-table`, `role-data-table`) sahifa
+   fonida (#f5faff) turadi, qolganlari esa oq kartada — shu sabab fon `--sticky-cell-bg` o'zgaruvchisidan olinadi.
+   Chegara: sticky kataklar uchun separate + border-spacing: 0 ishlatiladi; har bir chegara faqat
+   bir marta chiziladi va katak bilan birga siljiydi. Soya faqat jadval aylantirilganda ko'rinadi. */
+main.page table {
+  --sticky-cell-bg: #fff;
+}
+
+main.page :is(.users-table, .branch-data-table, .role-data-table) {
+  --sticky-cell-bg: #f5faff;
+}
+
+main.page .dl-card .users-table {
+  --sticky-cell-bg: #fff;
+}
+
+@keyframes sticky-edge-td {
+  0%,
+  98% {
+    box-shadow: -6px 0 6px -6px rgba(0, 51, 102, 0.22);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+@keyframes sticky-edge-th {
+  0%,
+  98% {
+    box-shadow: -6px 0 6px -6px rgba(0, 51, 102, 0.22);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+@media (min-width: 1100px) {
+  /* Separate borders move with sticky cells. Draw each edge only once,
+     instead of painting inset lines over collapsed table borders. */
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) {
+    border-collapse: separate !important;
+    border-spacing: 0;
+  }
+
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > :is(thead, tbody) > tr > :is(th, td) {
+    border-width: 0 1px 1px 0 !important;
+    border-style: solid;
+    border-color: #d9d9d9;
+  }
+
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > :is(thead, tbody) > tr > :is(th, td):first-child {
+    border-left-width: 1px !important;
+  }
+
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > thead > tr:first-child > th {
+    border-top-width: 1px !important;
+  }
+
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > thead > tr > th:last-child,
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > tbody > tr > td:last-child:not([colspan]) {
+    position: sticky;
+    right: 0;
+    z-index: 3;
+    background-color: var(--sticky-cell-bg, #fff);
+    box-shadow: none;
+    animation: sticky-edge-td linear both;
+    animation-timeline: scroll(nearest inline);
+  }
+
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > thead > tr > th:last-child {
+    z-index: 4;
+    background-color: #e6e6e6 !important;
+    box-shadow: none;
+    animation-name: sticky-edge-th;
+  }
+
+  /* Qator ustiga kelinganda ham katak fon rangi qolgan qatorlar bilan bir xil (umumiy qoida `#00336617` —
+     yarim shaffof, ya'ni 9% to'q ko'k; xuddi shuni asosiy fon ustiga aralashtiramiz). */
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > tbody > tr:hover > td:last-child:not([colspan]) {
+    background-color: color-mix(in srgb, #003366 9%, var(--sticky-cell-bg, #fff)) !important;
+  }
+
+  /* Tanlangan qator (checkbox) — `tr`ning o'z foni; yopishqoq katak ham shu rangda. */
+  main.page table:has(> tbody > tr > td:last-child :is(i.fa-pen, i.fa-trash, i.fa-eye, i.fa-box-archive, .fa-pen, .fa-trash)) > tbody > tr.row-selected > td:last-child:not([colspan]) {
+    background-color: #eef4ff;
+  }
+}
+
+/* ── 8. Bo'sh jadval («... topilmadi») ──────────────────────────────────────
+   Bo'sh holat qatori ham oddiy qator kabi `tr:hover` bilan kul-ko'k (#e8edf1) bo'yalib, oq karta ustida
+   alohida "quti" bo'lib ko'rinardi; pastida esa jadval chegarasi o'rtada chiziq bo'lib qolardi. Bu qatorda
+   ajratish ham, kursor-qo'l ham, chegara chiziqlari ham kerak emas — u kartaning o'z fonida turadi. */
+main.page table tbody tr:has(> td.empty-state-cell),
+main.page table tbody tr:has(> td.empty-state-cell):hover {
+  cursor: default;
+}
+
+main.page table tbody tr:has(> td.empty-state-cell) > td,
+main.page table tbody tr:has(> td.empty-state-cell):hover > td {
+  background-color: transparent !important;
+  border-width: 0 !important;
+  cursor: default;
+}
+
+/* Page headings share the branches-list layout, independently of lazy CSS order. */
+main.page :is(.main-title, .branch-page-title, .role-page-title, .pgt, .ipt-title, .sc-page-title, .tasks-title, .dl-att-title),
+main.page :is(.contracts-header, .registration-top) > h1 {
+  display: block !important;
+  flex: 0 0 100%;
+  width: 100%;
+  margin: 0 0 14px !important;
+  text-align: center !important;
+  font: 700 20px/1.3 noto-b, sans-serif !important;
+  color: #003366 !important;
+}
+main.page :is(.contracts-header, .registration-top) > h1 .icon-box,
+main.page .ipt-title-icon { display: none; }
+main.page :is(.sc-page-header, .registration-top, .tasks-top, .ipt-header) { flex-wrap: wrap; }
+main.page :is(.sc-header-actions, .registration-top__actions, .tasks-top-right) { width: 100%; }
+main.page .admin-bulk-delete {
+  border: 0; border-radius: 10px; min-width: 120px; height: 40px;
+  padding: 0 20px; background: #ed4545; color: white; font: 14px noto-b, sans-serif; cursor: pointer;
+}
+main.page .admin-bulk-delete:disabled { opacity: .5; cursor: not-allowed; }
+main.page .admin-selection { width: 38px; text-align: center; }
+main.page .admin-selection input { width: 16px; height: 16px; accent-color: #003366; }
+
+main.page :is(.brf-heading, .usrf-heading, .sc-form-page-title, .cp-detail-title, .detail-name) {
+  width: 100%; text-align: center; font: 700 20px/1.3 noto-b, sans-serif; color: #003366;
+}
+main.page :is(.fin-header, .ps-header, .pa-header, .dcr-header):has(> .pgt) { flex-wrap: wrap; }
+main.page :is(.fin-header, .ps-header, .pa-header, .dcr-header) > .pgt { flex: 0 0 100%; }
+
+main.page .group-selector-title { text-align: center; width: 100%; font: 700 20px/1.3 noto-b, sans-serif; color: #003366; }
+main.page .group-selector-header { flex-wrap: wrap; }
+
+main.page .sc-page-top { display: block !important; margin-bottom: 14px !important; text-align: center; }
+main.page .sc-page-top > div:has(> i) { display: none !important; }
+main.page .sc-page-top > span { display: block; width: 100%; font: 700 20px/1.3 noto-b, sans-serif !important; color: #003366 !important; text-transform: none !important; }
+
+/* Filters on the left; add and delete actions together on the right. */
+main.page :is(.users-filters, .contracts-filters, .sc-header-actions, .registration-top__actions, .pdr-card-filters) > .admin-bulk-delete { order: 2; margin-left: auto; }
+main.page :is(.contracts-filters > .btn-save, .registration-top__actions > .registration-add-btn, .sc-header-actions > .sc-create-btn) { order: 1; margin-left: auto; }
+main.page :is(.users-filters:has(> .add-new-user), .contracts-filters:has(> .btn-save), .sc-header-actions:has(> .sc-create-btn), .registration-top__actions:has(> .registration-add-btn)) > .admin-bulk-delete { margin-left: 0; }
+main.page .pdr-card-filters { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* ── Jadval matni 2 qatorga sig'adi ─────────────────────────────────────────────────────────────────────────
+   Ilgari `th, td { white-space: nowrap }` + `table-layout: auto` uzun matnni (masalan, 17 ta jamg'arma nomini)
+   bitta cheksiz qatorga cho'zib, jadvalni gorizontal aylantirardi va katak mazmuni tushunarsiz bo'lib qolardi.
+   Endi ma'lumot kataklari (tugma, belgi, ikonka, input'siz) o'ralib, 360px dan kengaymaydi. Ro'yxat ko'rinishidagi
+   (vergul bilan) kataklar `ClampText` bilan 2 qatordan oshmaydi. ID/belgilash/amallar ustunlari nowrap qoladi
+   (yuqoridagi qoidalar kattaroq spetsifiklikda). */
+main.page table > tbody > tr > td:not([colspan], .actions, :has(button, a, i, input, select, textarea, img, svg)) {
+  max-width: 360px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: break-word;
+  line-height: 1.35;
+}
+
+.clamp-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-align: inherit;
+}
+
+/* ── Ro'yxat sahifalari: qidiruv BOSHIDA (chapda), keyin filtrlar, amallar o'ngda ────────────────────────────
+   `order: -1` — qidiruv DOM tartibidan mustaqil hamma sahifada birinchi turadi (Jamg'arma, Hisoblar, To'lovlar,
+   Filiallarda u ilgari filtrlardan keyin edi). Amallar guruhi (Qo'shish/O'chirish) `margin-left: auto` bilan o'ngda.
+   Qarzlar (`.debts-filter-wrap` — «Saralash» tugmali) o'z dizaynida qoladi. `!important` — ba'zi sahifalarda
+   qidiruvga inline `margin-left: auto` berilgan. */
+main.page :is(.users-filters, .branch-filter-panel, .payments-filters, .fin-toolbar:not(:has(.debts-filter-wrap)), .sc-header-actions, .attendance-filters) > :is(input:not([type]), input[type='text'], input[type='search'], .fin-search-box, .search-box, .sc-search-wrapper) {
+  order: -1;
+  margin-left: 0 !important;
+  margin-right: 0;
+}
+main.page :is(.users-filters, .branch-filter-panel, .payments-filters, .fin-toolbar:not(:has(.debts-filter-wrap)), .sc-header-actions, .attendance-filters) > :is(.add-new-user, .delete-all, .branch-add-btn, .branch-delete-btn, .add-new-payment, .fin-btn-add, .fin-btn-danger, .sc-create-btn) { order: 2; }
+main.page :is(.users-filters, .branch-filter-panel, .payments-filters, .fin-toolbar:not(:has(.debts-filter-wrap)), .sc-header-actions, .attendance-filters) > .admin-bulk-delete { order: 3; }
+main.page .fin-toolbar:not(:has(.debts-filter-wrap)) > :is(.fin-btn-add, .fin-btn-danger) { margin-left: auto; }
+main.page .fin-toolbar:not(:has(.debts-filter-wrap)) > .fin-btn-add ~ .fin-btn-danger { margin-left: 0; }
+main.page .fin-toolbar:not(:has(.debts-filter-wrap)) > .fin-search-box { flex: 0 1 280px; max-width: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9. TO'LIQ MOBIL VA TABLET RESPONSIVELIK (BARCHA SAHIFALAR UCHUN)
+   Planshet (≤1024px), mobil (≤768px) va kichik mobil (≤480px) ekranlar
+   uchun barcha sahifa komponentlari va jadvallarini to'liq moslashtirish.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 9.1 Barcha sahifa konteynerlari va tashqi bo'shliqlar ────────────────── */
+@media (max-width: 1024px) {
+  main.page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  main.page :is(
+    .container, .users, .payments, .role-container, .branch-container, .attendance-page,
+    .contracts-container, .lessons-container, .attendance-container, .tasks, .ipt-page,
+    .registration, .lesson-schedule-container, .dl-page, .students-contract, .dcr-container,
+    .pa-container, .finances, .ps-container, .settings-page, .cp-detail-page, .pd-container,
+    .ay-page, .ccr-create-page, .usrf-page, .brf-page, .control
+  ) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 16px !important;
+    margin-bottom: 24px !important;
+    padding-left: var(--page-gutter) !important;
+    padding-right: var(--page-gutter) !important;
+    box-sizing: border-box !important;
+  }
+
+  main.page :is(.container.ccr-create-page, .container.registration, .container.attendance-container) {
+    padding-left: var(--page-gutter) !important;
+    padding-right: var(--page-gutter) !important;
+  }
+}
+
+/* ── 9.2 Jadvallar: Barcha sahifalarda gorizontal scroll va to'liq ko'rinish ─── */
+main.page :is(
+  .users-table-wrapper, .table-wrapper, .table-scroll, .desktop-table-container,
+  .contracts-table-card, .dcr-card, .fin-table-wrapper, .ipt-card, .lessons-table-wrapper,
+  .pa-card, .pdr-card, .ps-card, .sc-table-card, .dl-card, .registration-table-wrapper,
+  .cyclogram-wrapper, .attendance-table-container, .branch-table-container,
+  .role-table-container, .payments-table-container, .schedule-table-wrapper,
+  .monthly-calendar-container, .db-table-wrapper, .sc-table-wrapper, .table-container,
+  .attendance-table-wrapper
+) {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  position: relative !important;
+  scrollbar-width: thin;
+  margin-bottom: 16px !important;
+}
+
+@media (max-width: 1024px) {
+  main.page table {
+    min-width: 620px;
+  }
+
+  main.page .monthly-calendar-container .calendar-grid-header,
+  main.page .monthly-calendar-container .calendar-grid {
+    min-width: 620px;
+  }
+
+  main.page .schedule-table {
+    min-width: 700px;
+  }
+}
+
+@media (max-width: 768px) {
+  main.page table {
+    font-size: 13px !important;
+  }
+
+  main.page table thead th {
+    padding: 8px 6px !important;
+    font-size: 12.5px !important;
+  }
+
+  main.page table tbody td {
+    padding: 8px 6px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+/* ── 9.3 Toolbar, qidiruv va filtrlar (≤768px da to'liq ustun qilib joylash) ─── */
+@media (max-width: 768px) {
+  main.page :is(
+    .users-filters, .payments-filters, .branch-filter-panel, .attendance-filters,
+    .fin-toolbar, .sc-header-actions, .registration-top__actions, .contracts-filters,
+    .pdr-card-filters, .tasks-top-right, .filter-bar, .ipt-header, .role-header-actions,
+    .dcr-filters, .tasks-filters, .tasks-top-left, .filter-row
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+
+  main.page :is(
+    .users-filters, .payments-filters, .branch-filter-panel, .attendance-filters,
+    .fin-toolbar, .sc-header-actions, .registration-top__actions, .contracts-filters,
+    .pdr-card-filters, .tasks-top-right, .filter-bar, .ipt-header, .role-header-actions,
+    .dcr-filters
+  ) > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Qidiruv har doim tepada to'liq eni bo'yicha */
+  main.page :is(
+    input:not([type]), input[type='text'], input[type='search'],
+    .fin-search-box, .search-box, .sc-search-wrapper, .registration-top__search,
+    .role-search, .branch-search-input
+  ) {
+    order: -1 !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+  }
+
+  /* Amal tugmalari («Qo'shish», «O'chirish») to'liq kenglikda va qulay */
+  main.page :is(
+    .add-new-user, .delete-all, .branch-add-btn, .branch-delete-btn, .add-new-payment,
+    .fin-btn-add, .fin-btn-danger, .sc-create-btn, .registration-add-btn, .admin-bulk-delete,
+    .registration-top__register-btn, .tasks-add-btn, .ipt-btn-add, .btn-save
+  ) {
+    order: 3 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* ── 9.4 Sahifa sarlavhalari va yuqori boshqaruv panellari ──────────────────── */
+@media (max-width: 768px) {
+  main.page :is(.registration-top, .tasks-top, .sc-page-header, .contracts-header, .branch-top, .dcr-header, .fin-header, .pa-header, .ps-header) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  main.page h1,
+  main.page .main-title,
+  main.page :is(.branch-page-title, .role-page-title, .pgt, .ipt-title, .sc-page-title, .tasks-title, .dl-att-title) {
+    font-size: 18px !important;
+    line-height: 1.35 !important;
+    margin-bottom: 10px !important;
+  }
+}
+
+/* ── 9.5 Modallar, Formlar va Kiritish maydonlari (≤768px) ─────────────────── */
+@media (max-width: 768px) {
+  main.page :is(.modal, .add-user-modal, .work-schedule-modal, .camera-modal-content, .delete-modal-box, .detail-modal, .brf-card, .usrf-card, .task-modal, .record-view-modal),
+  body .mantine-Modal-content,
+  body .mantine-Modal-inner {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: 90vh !important;
+    padding: 16px 12px !important;
+    margin: 10px auto !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+  }
+
+  main.page :is(
+    .form-grid, .add-user-form, .modal-form-grid, .modal-body-grid, .brf-fields,
+    .role-form, .branch-form, .detail-grid, .contract-form-grid, .dcr-form--grid,
+    .pa-form-grid, .ps-form-grid, .usrf-body, .form-row, .grid-2, .grid-3
+  ) {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  main.page :is(.form-left, .form-right, .form-group, .modal-field) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  main.page :is(
+    .modal-footer, .usrf-footer, .brf-footer, .dcr-modal-footer, .modal-actions
+  ) {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  main.page :is(
+    .modal-footer, .usrf-footer, .brf-footer, .dcr-modal-footer, .modal-actions
+  ) button {
+    width: 100% !important;
+    height: 42px !important;
+  }
+}
+
+/* ── 9.6 Vazifalar (Tasks / Siklogramma / CRM) ──────────────────────────────── */
+@media (max-width: 1024px) {
+  main.page .tasks-content {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  main.page .tasks-content {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* ── 9.7 Tablar va Gorizontal Filtrlar (Moliya, Jadval rejimlar) ───────────── */
+main.page :is(.fin-tabs, .view-switcher, .month-nav, .interval-filter-wrap) {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  max-width: 100% !important;
+  scrollbar-width: thin;
+}
+
+/* ── 9.8 Xulosa kartalari (Moliya, Kassa hisoboti, Oyliklar) ───────────────── */
+@media (max-width: 900px) {
+  main.page :is(.dcr-summary, .fin-summary-cards, .pa-summary, .ps-summary) {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  main.page :is(.dcr-summary, .fin-summary-cards, .pa-summary, .ps-summary) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+}
+
+/* ── 9.9 Paginatsiya (Pagination) ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  main.page :is(.pagination, [class*='Pagination-root']) {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    margin-top: 14px !important;
+  }
+}
+
+/* ── 9.10 Moliya jadvallari: to'liq katak chegaralari va 90° burchaklar ───── */
+main.page :is(.fin-table, .dcr-table, .dcr-inner-table, .pa-table, .pdr-table) {
+  border-collapse: collapse;
+  border-radius: 0 !important;
+}
+
+main.page :is(.fin-table, .dcr-table, .dcr-inner-table, .pa-table, .pdr-table) :is(th, td) {
+  border: 1px solid #d9d9d9 !important;
+}
+
+main.page :is(.fin-table-wrapper, .dcr-card, .pa-card, .pdr-card) {
+  border-radius: 0 !important;
+}

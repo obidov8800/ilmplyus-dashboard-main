@@ -1,0 +1,15 @@
+.users-filters .positions-clear-filters {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #c8d5e3;
+  border-radius: 10px;
+  background: #fff;
+  color: #003366;
+  font: 500 14px noto-m, sans-serif;
+  cursor: pointer;
+}
+
+.users-filters .positions-clear-filters:hover {
+  background: #f1f6fc;
+  border-color: #003366;
+}

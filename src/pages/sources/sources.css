@@ -1,0 +1,39 @@
+/* Havola ustuni: havola qisqartirilib ko'rsatiladi, o'ng chetida QR tugmasi. */
+.sources-link-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sources-link-cell a {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #003366;
+  text-decoration: underline;
+}
+
+.sources-qr-btn {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #003366;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.2s ease;
+}
+
+.sources-qr-btn:hover {
+  background: rgba(0, 51, 102, 0.1);
+}
+
+.sources-qr-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

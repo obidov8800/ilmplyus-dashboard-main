@@ -1,0 +1,4 @@
+/* O'qituvchilar sahifasi endi umumiy `PaginationBar` komponentidan
+   foydalanadi (`components/Pagination/pagination.css`). Ilgari shu yerda
+   bo'lgan `.cp-pagination*` uslublari olib tashlandi — jadval pastki
+   qatori barcha sahifalarda bir xil. */

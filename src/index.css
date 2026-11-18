@@ -1,0 +1,1738 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #032140 transparent;
+}
+
+.mantine-Notification-root {
+  box-shadow: none;
+}
+
+/* Sichqoncha bilan "ushlab tortib" gorizontal scroll qilish paytida
+   (`useGlobalDragScroll`) — matn tanlanib ketmasin, kursor holatini
+   bildirib tursin. Global — qaysi jadval/doska ekanidan qat'i nazar. */
+.drag-scrolling,
+.drag-scrolling * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+.th-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.th-sortable:hover {
+  background-color: #d0d9e6;
+}
+
+body {
+  background-color: #f5faff;
+  font-family: var(--app-font);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   YAGONA SHRIFT — Noto Sans JP (brendbook).
+   Butun admin (jadval, modal, input, select, option, tugma,
+   Mantine komponentlari) shu bitta oiladan foydalanadi.
+
+   Har og'irlik uchun IKKI @font-face:
+   1) Lotin fayli — unicode-range yo'q, ya'ni hamma belgini qamraydi
+      (avvalgidek). `noto-r` src avval `-400.woff2`ga (mavjud emas)
+      ishora qilardi — shu sabab "regular" matn brauzer serifiga
+      tushib qolib, shriftlar har xil ko'rinardi. Endi `-regular`.
+   2) Kirill fayli — Lotindan KEYIN e'lon qilinadi va `unicode-range`
+      faqat Kirillga cheklanadi. Shu tufayli rus/kirill matni ham
+      Noto oilasida chiqadi (serifга tushmaydi), Lotin esa Lotin
+      faylidan o'qiladi.
+   ═══════════════════════════════════════════════════════════ */
+
+/* — noto-r (400) — */
+@font-face {
+  font-family: noto-r;
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-regular.woff2) format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: noto-r;
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-regular.woff2) format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* — noto-m (500) — */
+@font-face {
+  font-family: noto-m;
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-500.woff2) format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: noto-m;
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-500.woff2) format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* — noto-sb (600) — */
+@font-face {
+  font-family: noto-sb;
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-600.woff2) format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: noto-sb;
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-600.woff2) format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* — noto-b (700) — */
+@font-face {
+  font-family: noto-b;
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-700.woff2) format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: noto-b;
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-700.woff2) format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* Kanonik oila — Mantine `theme.fontFamily` va istalgan
+   `font-family: 'Noto Sans JP'` shu yerdan og'irligini to'g'ri oladi. */
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-regular.woff2) format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-regular.woff2) format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-500.woff2) format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-500.woff2) format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-600.woff2) format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-600.woff2) format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-latin-700.woff2) format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans JP';
+  src: url(./assets/fonts/noto-sans-jp-v56-cyrillic-700.woff2) format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+/* Yagona shrift stek — Noto asosiy, keyin zamonaviy serifsiz fallback
+   (rus/kirill matni Noto'da yo'q belgida ham serifga tushmasin). */
+:root {
+  --app-font: 'Noto Sans JP', 'Segoe UI', Roboto, Arial, 'Helvetica Neue', sans-serif;
+  /* Mantine v8 barcha komponent shriftini shu o'zgaruvchilardan oladi. */
+  --mantine-font-family: var(--app-font);
+  --mantine-font-family-headings: var(--app-font);
+  --mantine-font-family-monospace: 'Noto Sans JP', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+/* Form kontrollari standart holda shrift MEROS OLMAYDI (brauzer qoidasi) —
+   shu sabab native input/select/option/textarea/button matni boshqacha
+   ko'rinardi. Endi ular ham `body`dan Noto'ni oladi. FontAwesome ikonkalari
+   `<i class="fa-*">` — bu qoidага tegmaydi (ular teg emas, klass bilan). */
+input,
+select,
+textarea,
+button,
+optgroup,
+option {
+  font-family: inherit;
+}
+
+/* Yagona chap-o'ng "havo" — sahifa hech qachon ekran chetiga yopishmaydi.
+   Har tomonda 100px (kichikroq ekranlarda bosqichma-bosqich kamayadi).
+   Bitta o'zgaruvchi — `.container` va pastdagi "yopishib qolgan" sahifa
+   wrapperlari ikkalasi ham shundan o'qiydi. */
+:root {
+  --page-gutter: clamp(16px, 3.2vw, 56px);
+}
+
+.container {
+  /* max-width yo'q — keng monitorlarda avto-markazlashtirish qo'shimcha
+     bo'sh joy hosil qilib, chap-o'ng oraliqni bir xil emas qilib
+     yuborardi. Yagona chegara — padding-inline: var(--page-gutter),
+     ekran kengligidan qat'i nazar har doim aynan shu. */
+  width: 100%;
+  padding-inline: var(--page-gutter);
+  box-sizing: border-box;
+}
+
+.loader {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* Header start */
+
+header {
+  width: 100%;
+  height: 70px;
+  background: linear-gradient(to right, #003366, #032140);
+  position: relative;
+  z-index: 100;
+}
+
+.header {
+  /* `<header>` o'zi 70px, bu ham o'sha balandlikda qolishi kerak.
+     100% bo'lsa, grid ichida ota element balandligini egallab sahifa
+     mazmunini pastga suradi (ro'yxatlar bo'sh ko'rinadi). */
+  height: 70px;
+  min-height: 70px;
+  flex-shrink: 0;
+  padding: 0 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: auto;
+}
+
+.sidebar-toggle-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.sidebar-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.aside-mobile-close {
+  display: none;
+}
+
+.aside-backdrop {
+  display: none;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  /* `height` emas `min-height`: kontent 100vh dan oshganda grid ham o'sadi, aks holda `position: sticky`
+     sidebar grid qutisi (100vh) bilan cheklanib, sahifa pastga aylanganda ekrandan chiqib ketardi. */
+  min-height: 100vh;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.layout.collapsed {
+  grid-template-columns: 80px minmax(0, 1fr);
+}
+
+.user-name {
+  font-family: noto-b;
+  font-size: 18px;
+  color: #fff;
+  text-align: right;
+  /* Juda uzun ism `Header.tsx`da bosh harflarga qisqartiriladi; bu — o'rtacha uzun ism sarlavhadan
+     chiqib ketmasligi uchun zaxira (oxiri "…" bilan kesiladi, to'liq nom sichqoncha ustida ko'rinadi). */
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-family: noto-b;
+  font-size: 14px;
+  color: #fff;
+  opacity: 80%;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.user-icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #fe9100 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-user-wrapper {
+  position: relative;
+}
+
+.header-user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.header-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  min-width: 160px;
+  padding: 8px 0;
+  z-index: 9999;
+}
+
+.header-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: noto-r;
+  font-size: 15px;
+  color: #e53935;
+  transition: background 0.15s;
+}
+
+.header-dropdown-item:hover {
+  background: #fff5f5;
+}
+
+.header-dropdown-icon {
+  font-size: 16px;
+  color: #e53935;
+}
+
+.header-dropdown-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 4px 0;
+}
+
+/* Header end */
+
+/* Aside start */
+
+aside {
+  background: linear-gradient(to right, #032140, #003366);
+  display: flex;
+  flex-direction: column;
+}
+
+.aside-top {
+  height: 100px;
+  display: flex;
+  align-items: center;
+}
+
+.aside-logo {
+  width: 206px;
+  margin-left: 22px;
+}
+
+.collapsed-logo {
+  width: 36px;
+  margin-left: 22px;
+}
+
+.aside-content {
+  flex: 1;
+  display: flex;
+}
+
+.sidebar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-item {
+  height: 56px;
+  padding: 14px 18px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: white !important;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-icon {
+  width: 22px;
+  min-width: 22px;
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-icon svg {
+  color: #ff9800;
+}
+
+.sidebar-label {
+  color: #fff;
+  white-space: nowrap;
+  font-family: noto-b;
+  font-size: 18px;
+}
+
+.sidebar-label.hidden {
+  display: none;
+}
+
+.layout.collapsed .sidebar-item {
+  justify-content: center;
+  padding: 14px 18px !important;
+}
+
+.sidebar-subitem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dot-icon {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-right: 5px;
+}
+
+.sidebar-subitem.active .dot-icon {
+  opacity: 1;
+}
+
+/* Uzun nom ikki qatorga o'tganda nuqta birinchi qatorda qoladi, matn nuqta ostiga tushmaydi. */
+.sidebar-subitem:not(.sidebar-area-parent) .dot-icon {
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.aside:not(.collapsed) .mantine-Accordion-panel {
+  display: block;
+}
+
+.aside.collapsed .mantine-Accordion-panel {
+  display: none;
+}
+
+.mantine-Accordion-control {
+  padding: 0 !important;
+}
+
+.mantine-Accordion-control {
+  display: flex !important;
+  align-items: center;
+}
+
+.mantine-Accordion-controlLabel {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.mantine-Accordion-controlLabel > span {
+  display: flex;
+  align-items: center;
+}
+
+.mantine-Accordion-control.sidebar-item {
+  display: flex !important;
+  align-items: center;
+}
+
+.mantine-Accordion-label {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+}
+
+.mantine-Accordion-chevron {
+  display: block !important;
+  color: rgba(255, 255, 255, 0.7);
+  transition: transform 0.2s ease;
+  /* margin-right: 16px; */
+  padding: 14px 18px !important;
+  position: absolute;
+}
+
+.sidebar-item-content:hover .mantine-Accordion-chevron {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.aside.collapsed .mantine-Accordion-chevron {
+  display: none !important;
+}
+
+.sidebar-icon {
+  min-width: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.layout.collapsed .sidebar-label {
+  display: none;
+}
+
+.sidebar-item {
+  height: 56px;
+  padding: 14px 18px !important;
+  text-decoration: none;
+}
+
+.sidebar-item.active {
+  background: #ffffff26;
+}
+
+.sidebar-item:hover {
+  background: #ffffff26 !important;
+}
+
+.sidebar .mantine-Accordion-control:hover {
+  background: transparent !important;
+}
+
+.sidebar-sub-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-sub-item.active {
+  background: #ffffff26;
+  color: #fff;
+}
+
+.sidebar .mantine-Accordion-panel {
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.layout.collapsed .sidebar-subitem {
+  display: none !important;
+}
+
+.layout.collapsed .nav-group-header {
+  justify-content: center;
+  padding: 0;
+}
+
+.layout.collapsed .mantine-Accordion-control {
+  justify-content: center !important;
+}
+
+.layout.collapsed .mantine-Accordion-control .sidebar-icon {
+  margin: 0 auto;
+}
+
+.layout.collapsed .mantine-Accordion-label {
+  justify-content: center !important;
+  width: 100%;
+}
+
+.mantine-Accordion-item {
+  border-bottom: none;
+  width: 100%;
+  padding: 0 !important;
+}
+
+.sidebar-submenu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar .mantine-Accordion-panel {
+  padding: 0 !important;
+  width: 100%;
+  margin: 0 !important;
+}
+
+.sidebar .mantine-Accordion-content {
+  padding: 0 !important;
+  background: transparent !important;
+  width: 100% !important;
+}
+
+.sidebar-subitem {
+  /* Uzun nom (masalan «Maktabga tayyorlov davomati», RU tarjimalar) ikki qatorga o'tadi — qat'iy `height`
+     uni kesib qo'yardi. Bir qatorli band baribir 48px (14 + 20 + 14). */
+  min-height: 48px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-family: noto-m;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+  line-height: 20px;
+}
+
+.sidebar-subitem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sidebar-subitem.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-family: noto-b;
+}
+
+.sidebar .mantine-Accordion-panel > div {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.sidebar .mantine-Accordion-item {
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+.mantine-Accordion-control {
+  width: 100%;
+}
+
+.sidebar-item {
+  width: 100%;
+  height: 56px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.sidebar-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.sidebar-item-content:hover {
+  background: #ffffff26;
+}
+
+.sidebar-item:hover {
+  background: #ffffff26;
+}
+
+.sidebar-item[data-active='true'],
+.sidebar-item.active {
+  background: #ffffff26;
+}
+
+/* Custom accordion group */
+.nav-group {
+  width: 100%;
+}
+
+.nav-group-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: #fff;
+}
+
+.nav-group-header:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-group-active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-group-label {
+  flex: 1;
+  font-family: noto-b;
+  font-size: 15px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nav-group-chevron {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+/* Font Awesome icon inside sidebar */
+.sidebar-fa-icon {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 17px;
+  width: 20px;
+  text-align: center;
+  font-family: noto-b;
+}
+
+/* Hududlar parent toggle row */
+.sidebar-area-parent {
+  cursor: pointer;
+  display: flex !important;
+  align-items: center;
+  user-select: none;
+}
+
+.sidebar-area-parent:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* Chevron icon for Hududlar */
+.area-chevron {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: auto;
+  margin-right: 16px;
+}
+
+/* Nested sub-items (Viloyatlar, Tumanlar) */
+.sidebar-subitem-nested {
+  padding-left: 34px !important;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.sidebar-subitem-nested:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-subitem-nested.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Coming soon placeholder pages */
+.coming-soon-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 80px 20px;
+  color: #003366;
+}
+
+.coming-soon-icon {
+  font-size: 56px;
+  color: #b0c4de;
+}
+
+.coming-soon-text {
+  font-family: noto-m;
+  font-size: 18px;
+  color: #8c98a5;
+}
+
+.nav-group-label {
+  font-family: noto-b;
+  font-size: 18px;
+  color: #fff;
+}
+
+.trash-unviewed-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 11px;
+  font-family: noto-b;
+  border-radius: 20px;
+  padding: 1px 7px;
+  min-width: 18px;
+  flex-shrink: 0;
+}
+
+/* Aside end */
+
+/* Home page start */
+
+.control {
+  padding: 63px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.control-top {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.control-card {
+  height: 190px;
+  border-radius: 15px;
+  border: 1px solid #003366;
+  padding: 30px 40px 15px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.control-card h4 {
+  font-family: noto-m;
+  font-size: 20px;
+  color: #003366;
+}
+
+.control-card p {
+  font-family: noto-r;
+  font-size: 24px;
+  color: #211715;
+}
+
+.control-content {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.control-content-left {
+  height: 477px;
+  border: 1px solid #003366;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  padding: 17px 15px 0px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart {
+  flex: 1;
+  margin-top: 30px;
+  margin-left: -40px;
+}
+
+.control-content-left.expanded {
+  width: 100%;
+}
+
+.control-content-left.collapsed {
+  width: 820px;
+}
+
+.control-content-left h1 {
+  font-family: noto-m;
+  font-size: 20px;
+  color: #003366;
+  letter-spacing: 1px;
+}
+
+.control-content-right {
+  width: 340px;
+  height: 477px;
+  border-radius: 15px;
+  border: 1px solid #003366;
+  padding: 55px 43px;
+}
+
+.control-content-right h1 {
+  font-family: noto-b;
+  font-size: 20px;
+  color: #003366;
+  text-align: center;
+}
+
+.control-content-right h2 {
+  font-family: noto-m;
+  font-size: 20px;
+  color: #003366;
+}
+
+.control-content-right h3 {
+  font-family: noto-r;
+  font-size: 16px;
+  color: #000;
+}
+
+.control-content-right h4 {
+  font-family: noto-m;
+  font-size: 16px;
+  color: #003366;
+  border-bottom: 1px solid #003366;
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.control-content-right h4 span {
+  font-family: noto-r;
+  font-size: 16px;
+  color: #fe9100;
+}
+
+.control-content-right h5 {
+  font-family: noto-m;
+  font-size: 16px;
+  color: #003366;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 17px;
+}
+
+.control-content-right h5:nth-of-type(1) span {
+  font-family: noto-r;
+  font-size: 16px;
+  color: #26ff00;
+}
+
+.control-content-right h5:nth-of-type(2) span {
+  font-family: noto-r;
+  font-size: 16px;
+  color: #3f88c9;
+}
+
+.control-content-right h5:nth-of-type(3) span {
+  font-family: noto-r;
+  font-size: 16px;
+  color: #fe0000;
+}
+
+/* Skeleton Loading */
+@keyframes skeleton-loading {
+  0% {
+    background-color: #edf2f7;
+  }
+  100% {
+    background-color: #f7fafc;
+  }
+}
+
+.skeleton {
+  animation: skeleton-loading 0.8s linear infinite alternate;
+  border-radius: 4px;
+  height: 18px;
+  width: 100%;
+  display: block;
+}
+
+/* Empty State */
+.empty-state-cell {
+  padding: 60px 20px !important;
+  text-align: center;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  color: #8c98a5;
+}
+
+.empty-state i {
+  font-size: 56px;
+  color: #cbd5e0;
+  margin-bottom: 5px;
+}
+
+.empty-state p {
+  font-family: noto-m;
+  font-size: 18px;
+  margin: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+th:first-child,
+td:first-child {
+  width: 53px;
+  min-width: 53px;
+  max-width: 53px;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+th:first-child,
+td:first-child {
+  width: 53px;
+  min-width: 53px;
+  max-width: 53px;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+}
+
+th:last-child,
+td:last-child {
+  width: 203px;
+  min-width: 203px;
+  max-width: 203px;
+  min-height: 42.8px !important;
+  height: auto;
+}
+
+td:last-child {
+  padding: 12px 8px;
+}
+
+td:last-child > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap; /* MUHIM */
+}
+
+/* ── Work Schedule Modal ── */
+.work-schedule-modal {
+  min-width: min(500px, calc(100vw - 32px));
+  max-width: 560px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+.work-schedule-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ws-day-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #ccd6e0;
+  background: #f5faff;
+  color: #555;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  outline: none;
+}
+
+.ws-day-chip:hover {
+  border-color: #003366;
+  color: #003366;
+}
+
+.ws-day-chip.ws-day-chip-active {
+  background: #003366;
+  border-color: #003366;
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL RESPONSIVE FOUNDATION (1920px → 768px)
+   Shared structure so every page adapts to the screen.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Grid child must be allowed to shrink, otherwise wide tables
+   push the whole layout past the viewport and cause horizontal
+   scroll on the <body>. `min-width: 0` is the real fix; we avoid
+   `overflow` here so sticky table headers keep working. */
+.layout-main {
+  min-width: 0;
+  width: 100%;
+}
+
+.page {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Prevent wide page children from expanding the app shell. Data tables keep
+   their own horizontal scroll area; the header and page canvas stay in view. */
+html,
+body,
+#root {
+  min-width: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+.layout,
+.layout-main,
+main.page,
+main.page > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Shared page container (used by most CRUD pages via `.users`, plus a
+   few pages that copy-pasted the exact same box instead of reusing
+   `.users`) now fills the available width instead of being capped
+   narrow — otherwise on wide screens the table doesn't reach the right
+   edge and the padding stops being a reliable, consistent gutter. */
+.users,
+.payments,
+.role-container,
+.branch-container,
+.attendance-page {
+  max-width: 100% !important;
+}
+
+/* Any table that is wider than its column can scroll inside its
+   own wrapper instead of stretching the page. */
+.users-table-wrapper,
+.table-wrapper,
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---- ≤1600px ---- */
+@media (max-width: 1600px) {
+  :root {
+    --page-gutter: 32px;
+  }
+  .control-top {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ---- ≤1280px ---- */
+@media (max-width: 1280px) {
+  :root {
+    --page-gutter: 20px;
+  }
+  .control-content {
+    grid-template-columns: 1fr;
+  }
+  .control-content-left.collapsed,
+  .control-content-right {
+    width: 100%;
+  }
+  .control-top {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ---- ≤1024px ---- */
+@media (max-width: 1024px) {
+  :root {
+    --page-gutter: 14px;
+  }
+
+  .layout {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .layout.collapsed {
+    grid-template-columns: none !important;
+  }
+
+  .aside-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    backdrop-filter: blur(2px);
+  }
+
+  .aside-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .layout > aside.aside {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh !important;
+    height: 100dvh !important;
+    width: 280px !important;
+    max-width: 85vw !important;
+    z-index: 9999 !important;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .layout > aside.aside.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .aside-mobile-close {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 14px;
+    margin-left: auto;
+    transition: background 0.15s;
+  }
+
+  .aside-mobile-close:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .sidebar-toggle-btn {
+    display: inline-flex !important;
+  }
+
+  header {
+    height: 64px;
+  }
+
+  .header {
+    padding: 0 16px !important;
+    height: 64px;
+    min-height: 64px;
+  }
+
+  .users {
+    padding: 18px !important;
+  }
+
+  .users-filters {
+    flex-wrap: wrap;
+  }
+
+  .control {
+    padding: 24px 16px;
+  }
+
+  .control-top {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid,
+  .add-user-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- ≤768px ---- */
+@media (max-width: 768px) {
+  :root {
+    --page-gutter: 12px;
+  }
+
+  header {
+    height: 60px;
+  }
+
+  .header {
+    padding: 0 12px !important;
+    height: 60px;
+    min-height: 60px;
+    gap: 10px;
+  }
+
+  .users {
+    padding: 14px !important;
+    margin-top: 14px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .users-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .users-filters select,
+  .users-filters input {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .users-table {
+    font-size: 13px;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 7px;
+  }
+
+  .control-top {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .control-card {
+    height: auto;
+    padding: 20px;
+    min-height: 120px;
+  }
+
+  .control-content-left {
+    height: auto;
+    min-height: 320px;
+    padding: 14px 10px 0;
+  }
+
+  .control-content-right {
+    height: auto;
+    padding: 24px 16px;
+  }
+
+  .modal,
+  .modal.add-user-modal {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: 92vh;
+    padding: 16px 12px !important;
+    overflow-y: auto;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100% !important;
+  }
+}
+
+/* ---- ≤480px ---- */
+@media (max-width: 480px) {
+  :root {
+    --page-gutter: 8px;
+  }
+
+  .header {
+    padding: 0 10px !important;
+  }
+
+  .user-role {
+    display: none;
+  }
+
+  .user-name {
+    font-size: 13px !important;
+    max-width: 105px !important;
+  }
+
+  .user-icon-circle {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .sidebar-toggle-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+/* Laptop and tablet: controls can wrap naturally, while wide tables scroll
+   within their card instead of creating a second scrollbar for the window. */
+@media (max-width: 1366px) {
+  .users-filters,
+  .payments-filters,
+  .branch-filter-panel,
+  .attendance-filters,
+  .fin-toolbar:not(:has(.debts-filter-wrap)),
+  .contracts-filters,
+  .sc-header-actions,
+  .registration-top__actions {
+    min-width: 0;
+    max-width: 100%;
+    row-gap: 10px;
+  }
+
+  main.page :is(.users-filters, .payments-filters, .branch-filter-panel, .attendance-filters, .contracts-filters, .sc-header-actions) > select,
+  main.page :is(.users-filters, .payments-filters, .branch-filter-panel, .attendance-filters, .contracts-filters, .sc-header-actions) > input {
+    min-width: min(200px, 100%);
+    max-width: 100%;
+  }
+
+  main.page :is(.users-table-wrapper, .table-wrapper, .table-scroll, .desktop-table-container) {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    min-width: 0;
+  }
+
+  .user-name {
+    max-width: min(34vw, 220px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   YAGONA SAHIFA KENGLIGI — har bir sahifa root wrapper'i bir xil:
+   markazda, har tomondan `--page-gutter` (100px, kichik ekranда kamroq)
+   havo, va shu 100px'dan boshqa chap-o'ng chegara YO'Q.
+
+   Nega `!important` va `.container.X` (aniqlik 0,2,0):
+   sahifalarning o'z CSS'i (`users.css`, `finance.css`, ...) `index.css`'DAN
+   KEYIN yuklanadi va `.users { padding: 25px 50px }` / `margin-left: 40px`
+   kabi qoidalар bilan `.container`ning paddingini bosib o'tardi — shu sabab
+   "moliya / o'quvchilar / jadval sahifalari o'zgarmadi". Bu blok ularni
+   bir joyda, kuchli qoida bilan tenglashtiradi.
+
+   1-guruh — to'liq kenglikdagi flow sahifalar (o'z max-width'i yo'q). */
+.container.contracts-container,
+.container.lessons-container,
+.container.attendance-container,
+.container.tasks,
+.container.ipt-page,
+.container.registration,
+.container.lesson-schedule-container,
+.container.dl-page,
+.container.students-contract,
+.container.dcr-container,
+.container.pa-container,
+.container.finances,
+.container.ps-container,
+/* 2-guruh — eski "karta quti" sahifalar (`.users` oilasi): ilgari
+   `max-width: 1262px` bilan chapga yopishib turardi. `max-width` olib
+   tashlanadi — endi ular ham 100px gutter'gача to'ladi, xuddi moliya/
+   dashboard kabi. */
+.container.users,
+.container.payments,
+.container.branch-container,
+.container.role-container,
+.container.attendance-page,
+.container.settings-page,
+.container.cp-detail-page {
+  max-width: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-inline: var(--page-gutter) !important;
+}
+
+/* `.container` klassisiz yagona root — payroll-distribution. */
+.pd-container {
+  max-width: none !important;
+  margin-inline: auto !important;
+  padding-inline: var(--page-gutter) !important;
+}
+
+/* Amal (action) ikonkalari uchun yagona rang qoidasi — butun loyihada bir xil.
+   Sahifa CSS larida berilgan ranglarni bosib o'tadi. */
+.fa-pen {
+  color: #22a7f0 !important;
+  font-size: 18px;
+}
+
+.fa-trash {
+  color: #fa2a00 !important;
+  font-size: 18px;
+}
+
+.fa-eye {
+  color: #003366 !important;
+  font-size: 18px;
+}
+
+.fa-box-archive {
+  color: #6c757d !important;
+  font-size: 18px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UNIFIED "RECORD LIST" TABLE DESIGN — single shared source.
+   Every CRUD list-page table below reads its look from here
+   instead of redefining it in its own page CSS file. A page's
+   own CSS should only add true exceptions on top of this (a
+   semantic group-header color, a left-aligned free-text column,
+   an extra column width) — not redeclare the base tokens.
+
+   NOT included here (kept fully page-owned, on purpose):
+   - lesson-schedule `.schedule-table`, students-attendance
+     `.attendance-table` — calendar/day grids, not row lists.
+   - students-contract `contractPrint.css` `.cp-table`, payroll-
+     sheets `.ps-pdf-table` — printed/PDF output, not screen UI.
+
+   `.db-table` and `.ipt-table` ARE included below now too — their own page CSS
+   still carries `!important` overrides for column widths/padding
+   that are genuinely unique to each, so those still win where they
+   differ; this shared layer just means the base look (header
+   colors, borders, hover) has one source instead of five copies.
+   ═══════════════════════════════════════════════════════════ */
+.users-table,
+.dl-att-table,
+.contracts-table,
+.fin-table,
+.ps-table,
+.pa-table,
+.lessons-table,
+.sc-table,
+.dcr-table,
+.dcr-inner-table,
+.payments-table,
+.branch-data-table,
+.role-data-table,
+.attendance-list-table,
+.db-table,
+.ipt-table {
+  font-size: 14px;
+  font-family: noto-m;
+}
+
+.users-table thead th,
+.dl-att-table thead th,
+.contracts-table thead th,
+.fin-table thead th,
+.ps-table thead th,
+.pa-table thead th,
+.lessons-table thead th,
+.sc-table thead th,
+.dcr-table thead th,
+.dcr-inner-table thead th,
+.payments-table thead th,
+.branch-data-table thead th,
+.role-data-table thead th,
+.attendance-list-table thead th,
+.db-table thead th,
+.ipt-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #e6e6e6;
+  color: #003366;
+}
+
+.users-table th,
+.users-table td,
+.dl-att-table th,
+.dl-att-table td,
+.contracts-table th,
+.contracts-table td,
+.fin-table th,
+.fin-table td,
+.ps-table th,
+.ps-table td,
+.pa-table th,
+.pa-table td,
+.lessons-table th,
+.lessons-table td,
+.sc-table th,
+.sc-table td,
+.dcr-table th,
+.dcr-table td,
+.dcr-inner-table th,
+.dcr-inner-table td,
+.payments-table th,
+.payments-table td,
+.branch-data-table th,
+.branch-data-table td,
+.role-data-table th,
+.role-data-table td,
+.attendance-list-table th,
+.attendance-list-table td,
+.db-table th,
+.db-table td,
+.ipt-table th,
+.ipt-table td {
+  border: 1px solid #d9d9d9;
+  padding: 10px;
+  text-align: center;
+}
+
+.users-table tbody tr:hover td,
+.dl-att-table tbody tr:hover td,
+.contracts-table tbody tr:hover td,
+.fin-table tbody tr:hover td,
+.ps-table tbody tr:hover td,
+.pa-table tbody tr:hover td,
+.lessons-table tbody tr:hover td,
+.sc-table tbody tr:hover td,
+.dcr-table tbody tr:hover td,
+.dcr-inner-table tbody tr:hover td,
+.payments-table tbody tr:hover td,
+.branch-data-table tbody tr:hover td,
+.role-data-table tbody tr:hover td,
+.attendance-list-table tbody tr:hover td,
+.db-table tbody tr:hover td,
+.ipt-table tbody tr:hover td {
+  background-color: #00336617;
+  cursor: pointer;
+}
+
+/* Version stays visible below the scrolling navigation. */
+.aside-version {
+  flex-shrink: 0;
+  padding: 12px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.aside-top { flex-shrink: 0; }
+
+/* Sidebar sahifa bilan birga surilmaydi: ekran balandligida qotib turadi, menyu esa o'z scrollida aylanadi.
+   Ilgari `.layout` gridining qatori sahifa kontentiga qarab cho'zilar, sidebar ham shu balandlikka chiqib
+   ketar va ichki scroll hech qachon ishga tushmasdi (menyu sahifa bilan birga pastga ketardi). */
+.layout > aside {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.aside-content {
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.aside-content::-webkit-scrollbar { width: 6px; }
+.aside-content::-webkit-scrollbar-track { background: transparent; }
+.aside-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.22); border-radius: 3px; }
+.aside-content::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.38); }
+.aside-content .sidebar { padding-bottom: 16px; }
+
+/* Shared admin page headings, matching the branches list. */
+main.page :is(h1.main-title, h1.branch-page-title, h1.role-page-title, h1.pgt, h1.ipt-title) {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0 0 14px;
+  font-family: noto-b, sans-serif;
+  font-size: 20px;
+  line-height: 1.3;
+  color: #003366;
+}
+main.page .ipt-title-icon { display: none; }
+main.page .ipt-header { flex-wrap: wrap; }
+.fin-toolbar .fin-btn-danger { min-width: 120px; height: 40px; border-radius: 10px; }
+.fin-toolbar .fin-btn-danger:disabled { opacity: .5; cursor: not-allowed; }
