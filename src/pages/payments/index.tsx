@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   useQuery,
-  useQueries,
   useMutation,
   useQueryClient,
   keepPreviousData,
@@ -28,12 +27,6 @@ import { formatSum } from '@/api/preschool';
 import { fetchStudentMonths, suggestedPeriod } from '@/api/preschoolPayments';
 import AccessNotice from '@/components/AccessNotice';
 import { findStudentByAccount, normalizeAccount } from '@/utils/studentAccount';
-import { usePermission } from '@/hooks/usePermission';
-import { fetchOptions } from '@/api/options';
-
-interface Commission {
-  payment_method: string;
-}
 
 const KNOWN_PAYMENT_METHODS = ['cash', 'card', 'bank', 'click', 'paynet'];
 
@@ -169,7 +162,6 @@ const Payments = () => {
       student_id: String(student.id),
       student_code: String(student.student_code ?? ''),
       branch_id: String(student.branch_id ?? ''),
-      payment_type: String(student.branch_id ?? '') === prev.branch_id ? prev.payment_type : '',
       group_id: firstGroup ? String(firstGroup.id) : '',
       course_id: linkedCourse ? String(linkedCourse.id) : '',
       teacher_id: '',
@@ -218,43 +210,36 @@ const Payments = () => {
   const accountEntered = normalizeAccount(formData.student_code) !== '';
   const accountMissing = accountEntered && !selectedStudent && !!studentsData;
 
-  // Filial komissiyalari: `payment_gateway_commissions.view` bo'lsa `/branches/{id}/commissions`, bo'lmasa tanlov
-  // ro'yxati `/options/payment-gateway-commissions?branch_id=` (sahifaga `payments.*` yetadi).
-  const canViewCommissions = usePermission('payment_gateway_commissions.view');
-  const loadCommissions = async (branchId: number | string): Promise<Commission[]> => {
-    if (!canViewCommissions) {
-      return (await fetchOptions('payment-gateway-commissions', { branch_id: branchId })) as unknown as Commission[];
-    }
-    const { data } = await API.get(`/branches/${branchId}/commissions`);
-    return (data.data ?? data) as Commission[];
-  };
-  const { data: formCommissions } = useQuery<Commission[]>({
-    queryKey: ['branch-commissions', formData.branch_id, canViewCommissions],
-    queryFn: () => loadCommissions(formData.branch_id),
-    enabled: !!formData.branch_id,
-    staleTime: 1000 * 60 * 10,
-  });
+  // To'lov usullari barcha filiallar uchun UMUMIY (2026-11-20 dan) — filial bo'yicha so'rash shart emas.
+  // `/options/payment-gateway-commissions` faqat `lookups.view` talab qiladi va FAQAT FAOL usullarni qaytaradi,
+  // shuning uchun formada nofaol usul chiqmaydi (aks holda to'lov «faol kommissiya sozlamasi topilmadi» xatosi
+  // bilan to'xtardi). Usul kaliti javobning `label` maydonida keladi — `payment_method` maydoni yo'q.
+  const { data: commissionOptions } = useOptions('payment-gateway-commissions');
 
-  const formPaymentMethods = useMemo(
-    () => Array.from(new Set((formCommissions ?? []).map((c) => c.payment_method))),
-    [formCommissions],
+  const activePaymentMethods = useMemo(
+    () =>
+      Array.from(
+        new Set((commissionOptions ?? []).map((o) => String(o.label ?? '').trim()).filter(Boolean)),
+      ),
+    [commissionOptions],
   );
 
-  const allBranchCommissionsQueries = useQueries({
-    queries: (branchesData ?? []).map((b) => ({
-      queryKey: ['branch-commissions', String(b.id), canViewCommissions],
-      queryFn: () => loadCommissions(b.id),
-      staleTime: 1000 * 60 * 10,
-    })),
-  });
+  // Tahrirlanayotgan to'lovning o'z usuli (keyinroq nofaol qilingan bo'lsa ham) ro'yxatdan tushib qolmasin —
+  // aks holda select bo'sh ko'rinib, usul jimgina o'zgarib ketardi.
+  const editingPaymentMethod = editingPayment?.payment_method;
+  const formPaymentMethods = useMemo(
+    () =>
+      editingPaymentMethod && !activePaymentMethods.includes(editingPaymentMethod)
+        ? [...activePaymentMethods, editingPaymentMethod]
+        : activePaymentMethods,
+    [activePaymentMethods, editingPaymentMethod],
+  );
 
-  const allPaymentMethods = useMemo(() => {
-    const set = new Set<string>();
-    allBranchCommissionsQueries.forEach((q) => {
-      q.data?.forEach((c) => set.add(c.payment_method));
-    });
-    return Array.from(set);
-  }, [allBranchCommissionsQueries]);
+  // Jadval filtri: nofaol qilingan usuldagi eski to'lovlarni ham topish uchun tanish usullar doim qo'shiladi.
+  const allPaymentMethods = useMemo(
+    () => Array.from(new Set([...KNOWN_PAYMENT_METHODS, ...activePaymentMethods])),
+    [activePaymentMethods],
+  );
 
   const paymentMethodLabel = (method: string) => {
     const normalized = method?.toLowerCase();
@@ -651,9 +636,7 @@ const Payments = () => {
                   <label>{t('payments.branch')}</label>
                   <select
                     value={formData.branch_id}
-                    onChange={(e) =>
-                      setFormData({ ...formData, branch_id: e.target.value, payment_type: '' })
-                    }
+                    onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
                   >
                     <option value="">{t('payments.choose')}</option>
                     {branchesData?.map((b) => (
@@ -698,11 +681,8 @@ const Payments = () => {
                   <select
                     value={formData.payment_type}
                     onChange={(e) => setFormData({ ...formData, payment_type: e.target.value })}
-                    disabled={!formData.branch_id}
                   >
-                    <option value="">
-                      {formData.branch_id ? t('payments.choose') : t('payments.chooseBranchFirst')}
-                    </option>
+                    <option value="">{t('payments.choose')}</option>
                     {formPaymentMethods.map((method) => (
                       <option key={method} value={method}>
                         {paymentMethodLabel(method)}

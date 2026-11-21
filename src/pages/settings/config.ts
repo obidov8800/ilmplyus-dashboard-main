@@ -557,7 +557,6 @@ export const TABLE_PAGES_CONFIG: PageConfig[] = [
     columns: [
       { id: 'checkbox', label: 'Checkbox', alwaysVisible: true },
       { id: 'id', label: 'ID' },
-      { id: 'branch', label: 'Filial' },
       { id: 'payment_type', label: 'To‘lov turi' },
       { id: 'commission_percent', label: 'Komissiya foizi' },
       { id: 'status', label: 'Holati' },

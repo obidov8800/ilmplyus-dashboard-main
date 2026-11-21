@@ -12,56 +12,59 @@ import TableSkeleton from '../../components/TableSkeleton';
 import EmptyState from '../../components/EmptyState';
 import { Protected } from '../../components/Protected';
 import { useTableColumns } from '../../hooks/useTableColumns';
-import { useOptions } from '../../hooks/useOptions';
 import PaginationBar from '../../components/Pagination/PaginationBar';
 import { ActiveBadge } from '@/components/StatusBadge';
 
+/**
+ * To'lov usuli komissiyasi — barcha filiallar uchun UMUMIY (2026-11-20 dan).
+ *
+ * Komissiya endi filialga bog'lanmaydi va muddati yo'q: har bir to'lov usuliga
+ * bitta yozuv, yoqish/o'chirish faqat `is_active` bilan. Javobda `branch_id`,
+ * `effective_date`, `expired_date` kelmaydi.
+ */
 interface Commission {
   id: number;
-  branch_id: number;
   payment_method: string;
   commission_percent: string | number;
-  effective_date: string;
-  expired_date: string | null;
   notes: string | null;
   is_active: boolean;
   // Backend stores this as a 1/0 column, so it can arrive as a number or a boolean.
   show_on_site: boolean | number;
+  deleted_at?: string | null;
   created_at: string;
   updated_at: string;
 }
 
 interface FormData {
-  /** Yangi komissiya qaysi filialga qo'shilishi (tahrirlashda o'zgarmaydi). */
-  branch_id: string;
+  /** Ro'yxatdagi tanish usul kaliti yoki `OTHER_METHOD` (yangi usul qo'lda yoziladi). */
   payment_method: string;
+  /** `payment_method === OTHER_METHOD` bo'lganda — yangi usulning kaliti (masalan `uzcard`). */
+  custom_method: string;
   commission_percent: string;
-  effective_date: string;
-  expired_date: string;
   notes: string;
   is_active: boolean;
   show_on_site: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 const emptyForm: FormData = {
-  branch_id: '',
   payment_method: '',
+  custom_method: '',
   commission_percent: '',
-  effective_date: '',
-  expired_date: '',
   notes: '',
   is_active: true,
-  show_on_site: true,
-  created_at: '',
-  updated_at: '',
+  show_on_site: false,
 };
+
+const BASE_URL = '/payment-gateway-commissions';
+const QUERY_KEY = ['payment-gateway-commissions'] as const;
 
 const toBool = (value: boolean | number | string | null | undefined) =>
   value === true || value === 1 || value === '1';
 
 const PAYMENT_METHODS = ['cash', 'card', 'bank', 'click', 'paynet'];
+
+/** «Boshqa usul» tanlovi — ro'yxatda yo'q yangi usul qo'shish uchun. */
+const OTHER_METHOD = '__other__';
 
 const formatDateTime = (iso: string | null) => {
   if (!iso) return '-';
@@ -70,17 +73,14 @@ const formatDateTime = (iso: string | null) => {
   return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const toLocalDateTimeInput = (iso: string | null) => {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
-
-const toApiDateTime = (dt: string) => {
-  if (!dt) return undefined;
-  const base = dt.replace('T', ' ');
-  return base.length === 16 ? base + ':00' : base;
+/** 422 javobidagi `errors.payment_method[0]` — maydon ostida ko'rsatish uchun. */
+const paymentMethodErrorOf = (error: unknown): string | null => {
+  const errors = (error as { response?: { data?: { errors?: Record<string, unknown> } } })?.response
+    ?.data?.errors;
+  const fieldErrors = errors?.payment_method;
+  if (Array.isArray(fieldErrors) && typeof fieldErrors[0] === 'string') return fieldErrors[0];
+  if (typeof fieldErrors === 'string') return fieldErrors;
+  return null;
 };
 
 const Commissions = () => {
@@ -91,11 +91,11 @@ const Commissions = () => {
   const columnHeader = (colId: string) => t(`columns.${colId}`, { defaultValue: colId });
   const queryClient = useQueryClient();
 
-  const [branchId, setBranchId] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [sortAsc, setSortAsc] = useState(false);
   const [editingItem, setEditingItem] = useState<Commission | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [methodError, setMethodError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [viewItem, setViewItem] = useState<Commission | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -103,109 +103,83 @@ const Commissions = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  const { data: branches } = useOptions('branches');
-
-  // Filial tanlanmagan bo'lsa — sahifaga kirganda darhol barcha filiallar
-  // ma'lumotlari ko'rinadi (backend faqat bitta filial bo'yicha beradi,
-  // shuning uchun har biridan alohida so'rov qilib birlashtiramiz). Filial
-  // tanlansa — odatdagidek faqat o'shanikini olib kelamiz.
+  // Ro'yxat bitta — barcha filiallar uchun umumiy.
   const { data: commissions, isLoading } = useQuery<Commission[]>({
-    queryKey: ['commissions', branchId, (branches ?? []).map((b) => b.id).join(',')],
+    queryKey: QUERY_KEY,
     queryFn: async () => {
-      if (branchId) {
-        const { data } = await API.get(`/branches/${branchId}/commissions`);
-        const list: Commission[] = data.data ?? data;
-        return (list ?? []).map((c) => ({ ...c, branch_id: c.branch_id ?? Number(branchId) }));
-      }
-      const results = await Promise.all(
-        (branches ?? []).map(async (b) => {
-          const { data } = await API.get(`/branches/${b.id}/commissions`);
-          const list: Commission[] = data.data ?? data;
-          return (list ?? []).map((c) => ({ ...c, branch_id: c.branch_id ?? Number(b.id) }));
-        }),
-      );
-      return results.flat();
+      const { data } = await API.get(BASE_URL);
+      const list: Commission[] = data?.data ?? data;
+      return Array.isArray(list) ? list : [];
     },
-    enabled: branchId ? true : (branches?.length ?? 0) > 0,
   });
 
   const getCommissionMutation = useMutation({
     mutationFn: async (item: Commission) => {
-      const { data } = await API.get(`/branches/${item.branch_id}/commissions/${item.id}`);
+      const { data } = await API.get(`${BASE_URL}/${item.id}`);
       return (data.data ?? data) as Commission;
     },
     onSuccess: (item) => {
       setEditingItem(item);
+      setMethodError(null);
       setFormData({
-        branch_id: String(item.branch_id),
         payment_method: item.payment_method,
+        custom_method: '',
         commission_percent: String(item.commission_percent ?? ''),
-        effective_date: toLocalDateTimeInput(item.effective_date),
-        expired_date: toLocalDateTimeInput(item.expired_date),
         notes: item.notes || '',
-        is_active: item.is_active,
+        is_active: !!item.is_active,
         show_on_site: toBool(item.show_on_site),
-        created_at: toLocalDateTimeInput(item.created_at),
-        updated_at: toLocalDateTimeInput(item.updated_at),
       });
       setShowModal(true);
     },
   });
 
-  const buildPayload = () => {
-    const payload: Record<string, unknown> = {
-      payment_method: formData.payment_method,
-      commission_percent: Number(formData.commission_percent),
-      effective_date: toApiDateTime(formData.effective_date),
-      expired_date: formData.expired_date ? toApiDateTime(formData.expired_date) : null,
-      notes: formData.notes,
-      is_active: formData.is_active,
-      // Backend column is a 1/0 flag.
-      show_on_site: formData.show_on_site ? 1 : 0,
-    };
-    if (formData.created_at) payload.created_at = toApiDateTime(formData.created_at);
-    if (formData.updated_at) payload.updated_at = toApiDateTime(formData.updated_at);
-    return payload;
-  };
+  /** Tahrirda faqat shu 4 maydon o'zgaradi — `payment_method` o'zgarmaydi. */
+  const buildUpdatePayload = () => ({
+    commission_percent: Number(formData.commission_percent),
+    notes: formData.notes.trim() || null,
+    is_active: formData.is_active,
+    show_on_site: formData.show_on_site,
+  });
+
+  const resolvedPaymentMethod = () =>
+    formData.payment_method === OTHER_METHOD
+      ? formData.custom_method.trim().toLowerCase()
+      : formData.payment_method;
 
   const createMutation = useMutation({
-    // Filial formadagi tanlovdan olinadi (sahifa filtri "barcha filiallar" bo'lsa ham qo'shish ishlaydi).
-    mutationFn: async () => API.post(`/branches/${formData.branch_id}/commissions`, buildPayload()),
+    mutationFn: async () =>
+      API.post(BASE_URL, { payment_method: resolvedPaymentMethod(), ...buildUpdatePayload() }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['commissions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       resetForm();
+    },
+    onError: (error) => {
+      // Bir usulga bitta yozuv: mavjud usul yuborilsa 422 `errors.payment_method`.
+      setMethodError(paymentMethodErrorOf(error));
     },
   });
 
   const updateMutation = useMutation({
-    // Filial holatidan (filtr) emas, tahrirlanayotgan yozuvning O'ZINING
-    // filialidan olinadi — "barcha filiallar" ko'rinishida filtr bo'sh
-    // bo'lishi mumkin, lekin yozuv baribir muayyan filialga tegishli.
-    mutationFn: async ({ id, branch_id }: { id: number; branch_id: number }) =>
-      API.put(`/branches/${branch_id}/commissions/${id}`, buildPayload()),
+    mutationFn: async (id: number) => API.put(`${BASE_URL}/${id}`, buildUpdatePayload()),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['commissions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       resetForm();
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async ({ id, branch_id }: { id: number; branch_id: number }) =>
-      API.delete(`/branches/${branch_id}/commissions/${id}`),
+    mutationFn: async (id: number) => API.delete(`${BASE_URL}/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['commissions'] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
     },
   });
 
   const confirmDelete = () => {
     if (deleteTarget === 'all') {
-      selected.forEach((id) => {
-        const item = (commissions ?? []).find((c) => c.id === id);
-        if (item) deleteMutation.mutate({ id: item.id, branch_id: item.branch_id });
-      });
+      selected.forEach((id) => deleteMutation.mutate(id));
       setSelected([]);
     } else if (deleteTarget) {
-      deleteMutation.mutate({ id: deleteTarget.id, branch_id: deleteTarget.branch_id });
+      deleteMutation.mutate(deleteTarget.id);
       setSelected((p) => p.filter((x) => x !== deleteTarget.id));
     }
     setShowDeleteModal(false);
@@ -216,13 +190,13 @@ const Commissions = () => {
     setShowModal(false);
     setEditingItem(null);
     setFormData(emptyForm);
+    setMethodError(null);
   };
 
   const openAddModal = () => {
     setEditingItem(null);
-    // Filtrda filial tanlangan bo'lsa — o'sha, yagona filial bo'lsa — o'sha; aks holda formada tanlanadi.
-    const defaultBranch = branchId || (branches?.length === 1 ? String(branches[0].id) : '');
-    setFormData({ ...emptyForm, branch_id: defaultBranch });
+    setFormData(emptyForm);
+    setMethodError(null);
     setShowModal(true);
   };
 
@@ -235,13 +209,16 @@ const Commissions = () => {
     return key ? t(`commissions.methods.${key}`) : method;
   };
 
+  // Qo'shishda allaqachon yozuvi bor usullar ko'rsatilmaydi — ular uchun backend 422 qaytaradi.
+  const existingMethods = new Set((commissions ?? []).map((c) => c.payment_method));
+  const availableMethods = PAYMENT_METHODS.filter((m) => !existingMethods.has(m));
+
   const sortedCommissions = [...(commissions || [])].sort((a, b) =>
     sortAsc ? a.id - b.id : b.id - a.id,
   );
 
-  // Backend `/branches/{id}/commissions` sahifalashni qo'llab-quvvatlamaydi
-  // (hammasi bir yo'la keladi) — shu sabab bu yerda klient tomonda
-  // sahifalanadi.
+  // Backend sahifalashni qo'llab-quvvatlamaydi (hammasi bir yo'la keladi) —
+  // shu sabab bu yerda klient tomonda sahifalanadi.
   const commissionsTotal = sortedCommissions.length;
   const commissionsTotalPages = Math.max(1, Math.ceil(commissionsTotal / pageSize));
   const pagedCommissions = sortedCommissions.slice((page - 1) * pageSize, page * pageSize);
@@ -251,6 +228,8 @@ const Commissions = () => {
 
   const toggleOne = (id: number) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
     <section className="users container">
@@ -266,43 +245,56 @@ const Commissions = () => {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (editingItem) {
-                  updateMutation.mutate({ id: editingItem.id, branch_id: editingItem.branch_id });
+                  updateMutation.mutate(editingItem.id);
                 } else {
                   createMutation.mutate();
                 }
               }}
             >
               <div className="subcategory-form-group">
-                <label>{t('commissions.branch')}</label>
-                <select
-                  value={formData.branch_id}
-                  onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
-                  disabled={!!editingItem}
-                  required
-                >
-                  <option value="">{t('commissions.choose')}</option>
-                  {branches?.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="subcategory-form-group">
                 <label>{t('commissions.paymentType')}</label>
-                <select
-                  value={formData.payment_method}
-                  onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
-                  required
-                >
-                  <option value="">{t('commissions.choose')}</option>
-                  {PAYMENT_METHODS.map((m) => (
-                    <option key={m} value={m}>
-                      {t(`commissions.methods.${m}`)}
-                    </option>
-                  ))}
-                </select>
+                {editingItem ? (
+                  // To'lov usuli tahrirda o'zgarmaydi — boshqa usul kerak bo'lsa yangisi qo'shiladi.
+                  <>
+                    <input type="text" value={paymentMethodLabel(editingItem.payment_method)} disabled />
+                    <small style={{ color: '#6b7280', fontSize: 12 }}>
+                      {t('commissions.methodLockedHint')}
+                    </small>
+                  </>
+                ) : (
+                  <select
+                    value={formData.payment_method}
+                    onChange={(e) => {
+                      setFormData({ ...formData, payment_method: e.target.value });
+                      setMethodError(null);
+                    }}
+                    required
+                  >
+                    <option value="">{t('commissions.choose')}</option>
+                    {availableMethods.map((m) => (
+                      <option key={m} value={m}>
+                        {t(`commissions.methods.${m}`)}
+                      </option>
+                    ))}
+                    <option value={OTHER_METHOD}>{t('commissions.otherMethod')}</option>
+                  </select>
+                )}
+                {!editingItem && formData.payment_method === OTHER_METHOD && (
+                  <input
+                    type="text"
+                    value={formData.custom_method}
+                    onChange={(e) => {
+                      setFormData({ ...formData, custom_method: e.target.value });
+                      setMethodError(null);
+                    }}
+                    placeholder={t('commissions.customMethodPlaceholder')}
+                    maxLength={50}
+                    required
+                  />
+                )}
+                {methodError && (
+                  <small style={{ color: '#dc2626', fontSize: 12 }}>{methodError}</small>
+                )}
               </div>
 
               <div className="subcategory-form-group">
@@ -310,28 +302,11 @@ const Commissions = () => {
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
+                  max="100"
                   value={formData.commission_percent}
                   onChange={(e) => setFormData({ ...formData, commission_percent: e.target.value })}
                   required
-                />
-              </div>
-
-              <div className="subcategory-form-group">
-                <label>{t('commissions.effectiveDate')}</label>
-                <input
-                  type="datetime-local"
-                  value={formData.effective_date}
-                  onChange={(e) => setFormData({ ...formData, effective_date: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="subcategory-form-group">
-                <label>{t('commissions.expiredDate')}</label>
-                <input
-                  type="datetime-local"
-                  value={formData.expired_date}
-                  onChange={(e) => setFormData({ ...formData, expired_date: e.target.value })}
                 />
               </div>
 
@@ -364,36 +339,9 @@ const Commissions = () => {
                 </label>
               </div>
 
-              {editingItem && (
-                <>
-                  <div className="subcategory-form-group">
-                    <label>{t('commissions.createdAt')}</label>
-                    <input
-                      type="datetime-local"
-                      value={formData.created_at}
-                      onChange={(e) => setFormData({ ...formData, created_at: e.target.value })}
-                    />
-                  </div>
-                  <div className="subcategory-form-group">
-                    <label>{t('commissions.updatedAt')}</label>
-                    <input
-                      type="datetime-local"
-                      value={formData.updated_at}
-                      onChange={(e) => setFormData({ ...formData, updated_at: e.target.value })}
-                    />
-                  </div>
-                </>
-              )}
-
               <div className="modal-actions">
-                <button
-                  className="primary"
-                  type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
-                >
-                  {createMutation.isPending || updateMutation.isPending
-                    ? t('commissions.saving')
-                    : t('commissions.save')}
+                <button className="primary" type="submit" disabled={isSaving}>
+                  {isSaving ? t('commissions.saving') : t('commissions.save')}
                 </button>
                 <button type="button" className="cancel" onClick={resetForm}>
                   {t('commissions.cancel')}
@@ -470,25 +418,6 @@ const Commissions = () => {
               </p>
             </div>
 
-            <div style={{ display: 'flex', marginBottom: 24 }}>
-              <div style={{ flex: 1 }}>
-                <p style={{ color: '#888', fontSize: 14, marginBottom: 8 }}>
-                  {t('commissions.effectiveDate')}:
-                </p>
-                <p style={{ color: '#003366', fontWeight: 500, fontSize: 16 }}>
-                  {formatDateTime(viewItem.effective_date)}
-                </p>
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ color: '#888', fontSize: 14, marginBottom: 8 }}>
-                  {t('commissions.expiredDate')}:
-                </p>
-                <p style={{ color: '#003366', fontWeight: 500, fontSize: 16 }}>
-                  {formatDateTime(viewItem.expired_date)}
-                </p>
-              </div>
-            </div>
-
             <div style={{ marginBottom: 24 }}>
               <p style={{ color: '#888', fontSize: 14, marginBottom: 8 }}>
                 {t('commissions.notes')}:
@@ -556,21 +485,6 @@ const Commissions = () => {
             {t('commissions.delete')}
           </button>
         </Protected>
-
-        <select
-          value={branchId}
-          onChange={(e) => {
-            setBranchId(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">{t('commissions.chooseBranch')}</option>
-          {branches?.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.label}
-            </option>
-          ))}
-        </select>
       </div>
 
       <div className="users-table-wrapper">
@@ -614,12 +528,6 @@ const Commissions = () => {
                   {isVisible('id') && <td>{item.id}</td>}
                   {visibleColumns.map((colId) => {
                     switch (colId) {
-                      case 'branch':
-                        return (
-                          <td key={colId}>
-                            {branches?.find((b) => b.id === item.branch_id)?.label ?? '-'}
-                          </td>
-                        );
                       case 'payment_type':
                         return <td key={colId}>{paymentMethodLabel(item.payment_method)}</td>;
                       case 'commission_percent':
